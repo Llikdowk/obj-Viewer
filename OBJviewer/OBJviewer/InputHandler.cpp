@@ -1,9 +1,7 @@
+#include <iostream>
 #include "InputHandler.h"
 
-#include <iostream>
-
-
-InputHandler::InputHandler() {
+InputHandler::InputHandler() : behaviour(new Behaviour()) {
 	glutKeyboardFunc(InputHandler::GLCallbackOnKey);
 	glutKeyboardUpFunc(InputHandler::GLCallbackOnKeyUp);
 	glutSpecialFunc(InputHandler::GLCallbackOnSpecialKey);
@@ -18,32 +16,38 @@ InputHandler& InputHandler::getInstance() {
 	return instance;
 }
 
+void InputHandler::setBehaviour(Behaviour* b) {
+    delete behaviour;
+    behaviour = b;
+}
+
 void InputHandler::onKey(unsigned char key, int x, int y) {
-	std::cout << key << std::endl;
+    behaviour->onKey(key, x, y);
 }
 
 void InputHandler::onKeyUp(unsigned char key, int x, int y) {
-
+    behaviour->onKeyUp(key, x, y);
 }
 
 void InputHandler::onSpecialKey(int specialKey, int x, int y) {
-	std::cout << specialKey << std::endl;
+    behaviour->onSpecialKey(specialKey, x, y);
+
 }
 
 void InputHandler::onSpecialKeyUp(int specialKey, int x, int y) {
-
+    behaviour->onSpecialKeyUp(specialKey, x, y);
 }
 
 void InputHandler::onMouse(int button, int state, int x, int y) {
-
+    behaviour->onMouse(button, state, x, y);
 }
 
 void InputHandler::onMotion(int x, int y) {
-
+    behaviour->onMotion(x, y);
 }
 
 void InputHandler::onPassiveMotion(int x, int y) {
-
+    behaviour->onPassiveMotion(x, y);
 }
 
 /*****************\

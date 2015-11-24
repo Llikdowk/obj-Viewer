@@ -37,6 +37,9 @@
     <Filter Include="Source Files\Input">
       <UniqueIdentifier>{f0dfa361-2102-4b24-b2ec-d33ad2ecf25f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Input\Behaviours">
+      <UniqueIdentifier>{f249556b-c695-42b2-9e62-6d3934edfd9e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Constants.h">
@@ -55,6 +58,9 @@
       <Filter>Header Files\Util</Filter>
     </ClInclude>
     <ClInclude Include="InputHandler.h">
+      <Filter>Header Files\Input</Filter>
+    </ClInclude>
+    <ClInclude Include="Behaviours.h">
       <Filter>Header Files\Input</Filter>
     </ClInclude>
   </ItemGroup>
@@ -76,6 +82,18 @@
     </ClCompile>
     <ClCompile Include="Main.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Behaviour.cpp">
+      <Filter>Source Files\Input\Behaviours</Filter>
+    </ClCompile>
+    <ClCompile Include="ExtendedBehaviour.cpp">
+      <Filter>Source Files\Input\Behaviours</Filter>
+    </ClCompile>
+    <ClCompile Include="TypicalBehaviour.cpp">
+      <Filter>Source Files\Input\Behaviours</Filter>
+    </ClCompile>
+    <ClCompile Include="ShowKeysBehaviour.cpp">
+      <Filter>Source Files\Input\Behaviours</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

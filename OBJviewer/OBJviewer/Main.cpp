@@ -94,6 +94,7 @@ int main(int argc, char** argv) {
 	init();
 
 	InputHandler& a = InputHandler::getInstance();
+    a.setBehaviour(new ShowKeysBehaviour());
 	rotation = 0.0f;
 
 	camera.newPosition(GLVector3f::GLVector3f(5, 5, 5));

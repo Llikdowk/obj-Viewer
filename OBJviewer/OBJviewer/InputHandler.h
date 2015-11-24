@@ -2,6 +2,7 @@
 #include <GL\freeglut.h>
 #include <vector>
 #include <set>
+#include "Behaviours.h"
 
 class InputHandler {
 private:
@@ -9,12 +10,16 @@ private:
 	std::set<unsigned char> pressedKeys;
 	std::set<int> pressedSpecialKeys;
 
+    Behaviour* behaviour;
 	InputHandler();
+
 public:
 	static InputHandler& getInstance();
 
 	InputHandler(const InputHandler&) = delete;
 	void operator=(const InputHandler&) = delete;
+
+    void setBehaviour(Behaviour*);
 
 	bool isKeyPressed(unsigned char key);
 	std::vector<char> getPressedKeys();
