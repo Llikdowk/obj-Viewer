@@ -18,3 +18,9 @@ void ShowKeysBehaviour::onSpecialKeyUp(int specialKey, int x, int y) {
 void ShowKeysBehaviour::onMouse(int button, int state, int x, int y) {
     std::cout << "mouse_button, state: " << button << "," << state << " at position " << x << ", " << y << std::endl;
 };
+void ShowKeysBehaviour::onMotion(int x, int y) {
+	std::cout << "mouse_motion at position " << x << ", " << y << std::endl;
+};
+void ShowKeysBehaviour::onPassiveMotion(int x, int y) {
+	std::cout << "mouse__passive_motion at position " << x << ", " << y << std::endl;
+};

@@ -21,6 +21,8 @@ public:
     virtual void onSpecialKey(int specialKey, int x, int y);
     virtual void onSpecialKeyUp(int specialKey, int x, int y);
     virtual void onMouse(int button, int state, int x, int y);
+	virtual void onMotion(int x, int y);
+	virtual void onPassiveMotion(int x, int y);
 };
 
 class TypicalBehaviour : public Behaviour {

@@ -70,7 +70,7 @@ void reshape(GLint w, GLint h) {
 	glLoadIdentity();
 
 	float ratio = (float)w / h;
-	gluPerspective(90, ratio, 0.1, 1000);
+	gluPerspective(60, ratio, 0.1, 1000);
 }
 
 void init() {
@@ -95,6 +95,7 @@ int main(int argc, char** argv) {
 
 	InputHandler& a = InputHandler::getInstance();
     a.setBehaviour(new ShowKeysBehaviour());
+	//a.setBehaviour(new ExtendedBehaviour());
 	rotation = 0.0f;
 
 	camera.newPosition(GLVector3f::GLVector3f(5, 5, 5));

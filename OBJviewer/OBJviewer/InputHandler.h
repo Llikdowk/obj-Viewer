@@ -29,14 +29,6 @@ public:
 
 	void getMousePosition();
 
-	virtual void onKey(unsigned char key, int x, int y);
-	virtual void onKeyUp(unsigned char key, int x, int y);
-	virtual void onSpecialKey(int specialKey, int x, int y);
-	virtual void onSpecialKeyUp(int specialKey, int x, int y);
-	virtual void onMouse(int button, int state, int x, int y);
-	virtual void onMotion(int x, int y);
-	virtual void onPassiveMotion(int x, int y);
-
 	static void GLCallbackOnKey(unsigned char key, int x, int y);
 	static void GLCallbackOnKeyUp(unsigned char key, int x, int y);
 	static void GLCallbackOnSpecialKey(int specialKey, int x, int y);
