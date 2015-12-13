@@ -160,6 +160,7 @@
     <ClInclude Include="GLMatrixf.h" />
     <ClInclude Include="GLVector3f.h" />
     <ClInclude Include="InputHandler.h" />
+    <ClInclude Include="ObjReader.h" />
     <ClInclude Include="Timer.h" />
   </ItemGroup>
   <ItemGroup>

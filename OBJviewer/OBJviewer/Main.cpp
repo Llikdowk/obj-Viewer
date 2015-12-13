@@ -11,11 +11,17 @@
 #include "Camera.h"
 #include "Constants.h"
 #include "InputHandler.h"
+#include "ObjReader.h"
 
-float rotation;
+namespace {
+    float rotation;
+    Timer timer;
+    Camera camera;
 
-Timer timer;
-Camera camera;
+    std::vector< GLVector3f::GLVector3f > vertices;
+    std::vector< GLVector3f::GLVector3f > uvs;
+    std::vector< GLVector3f::GLVector3f > normals;
+}
 
 void showFPS() {
 	int fps = 1 / timer.getDeltaTime();
@@ -38,25 +44,34 @@ void display() {
 
 	camera.update();
 
-	rotation += 90.0f * timer.getDeltaTime();
-	rotation = std::fmodf(rotation, 360);
-
-	glPushMatrix();
-	glRotatef(rotation, 1.0, 0.0, 0.0);
-
-	glColor3f(0.0f, 0.0f, 1.0f);
-	glutSolidCube(1);
-	glColor3f(0.0, 0.0, 0.0);
-	glutWireCube(1);
-	glPopMatrix();
-
+	//rotation += 90.0f * timer.getDeltaTime();
+	//rotation = std::fmodf(rotation, 360);
+    //glRotatef(rotation, 1.0, 0.0, 0.0);
+    
+    glPushMatrix();
 	glTranslatef(0.0, 0.0, -2.0);
 	glScalef(50.0, 50.0, 1.0);
 	glColor3f(1.0, 0.0, 0.0);
 	glutSolidCube(1);
 	glColor3f(0.0, 0.0, 0.0);
 	glutWireCube(1);
+    glPopMatrix();
 
+    glPushMatrix();
+    glRotatef(90, 1, 0, 0);
+    // se deberia poder encapsular en un glcalllist
+    // falta: contexto opengl de texturas
+    // falta: contexto opengl de luces
+    // (en uvs y vertices esta toda la informacion necesaria para el modelo)
+    glBegin(GL_TRIANGLES);
+    for (unsigned int i = 0; i < vertices.size(); ++i) {
+        //glNormal3f(normals[i].x, normals[i].y, normals[i].z);
+        //glTexCoord2f(uvs[i].x, uvs[i].y);
+        glVertex3f(vertices[i].x, vertices[i].y, vertices[i].z);
+    }
+    glEnd();
+    glPopMatrix();
+        
 	glutSwapBuffers();
 	glutPostRedisplay();
 
@@ -84,7 +99,17 @@ void init() {
 
 	glEnable(GL_DEPTH_TEST);
 
-	glClearColor(1.0, 1.0, 1.0, 1.0);
+	glClearColor(.7, 1.0, 1.0, 1.0);
+
+    ObjReader obj("resources/mercedes/clkgtr.obj"); // triangles
+    obj.loadObj(vertices, uvs, normals);
+    bool wireframe = true;
+    if (wireframe) {
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    }
+    else {
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    }
 }
 
 int main(int argc, char** argv) {
