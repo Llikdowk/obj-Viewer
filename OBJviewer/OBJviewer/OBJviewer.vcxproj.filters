@@ -107,5 +107,8 @@
     <ClCompile Include="ShowKeysBehaviour.cpp">
       <Filter>Source Files\Input\Behaviours</Filter>
     </ClCompile>
+    <ClCompile Include="ObjReader.cpp">
+      <Filter>Source Files\Util</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

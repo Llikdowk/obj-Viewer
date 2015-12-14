@@ -178,6 +178,7 @@
     <ClCompile Include="GLVector3f.cpp" />
     <ClCompile Include="InputHandler.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="ObjReader.cpp" />
     <ClCompile Include="Timer.cpp" />
     <ClCompile Include="TypicalBehaviour.cpp" />
     <ClCompile Include="ShowKeysBehaviour.cpp" />

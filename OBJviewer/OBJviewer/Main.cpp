@@ -1,9 +1,11 @@
-#include <GL/freeglut.h>
 #include <utility>
 #include <math.h>
 #include <iostream>
 #include <string>
 #include <sstream>
+
+#include <GL/freeglut.h>
+
 #include "GLMatrixf.h"
 #include "GLVector3f.h"
 
@@ -16,14 +18,11 @@
 #include "shapes.h"
 
 namespace {
-    float rotation;
     Timer timer;
     Camera camera;
-
-    std::vector< GLVector3f::GLVector3f > vertices;
-    std::vector< GLVector3f::GLVector3f > uvs;
-    std::vector< GLVector3f::GLVector3f > normals;
+    ObjReader* model;
 }
+
 
 void showFPS() {
 	int fps = 1 / timer.getDeltaTime();
@@ -39,7 +38,7 @@ void display() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	GLMatrixf::GLMatrixf m;
-	m.rotate(90.0f * timer.getDeltaTime(), GLVector3f::GLVector3f(0, 0, 1));
+	//m.rotate(90.0f * timer.getDeltaTime(), GLVector3f::GLVector3f(0, 0, 1));
 	GLVector3f::GLVector3f newPos = GLMatrixf::transformPoint(m, camera.position);
 	camera.newPosition(newPos);
 	camera.lookAt(GLVector3f::GLVector3f(0.0, 0.0, 0.0));
@@ -48,30 +47,15 @@ void display() {
     float color[3] = { .4f, .4f, .4f };
     shapes::drawGrid(16, 16, 1, color);
 
-    /*
-    glPushMatrix();
-	glTranslatef(0.0, 0.0, -2.0);
-	glScalef(50.0, 50.0, 1.0);
-	glColor3f(1.0, 0.0, 0.0);
-	glutSolidCube(1);
-	glColor3f(0.0, 0.0, 0.0);
-	glutWireCube(1);
-    glPopMatrix();
-    */
-
     glPushMatrix();
     glRotatef(90, 1, 0, 0);
-    // se deberia poder encapsular en un glcalllist
-    // falta: contexto opengl de texturas
-    // falta: contexto opengl de luces
-    // (en uvs y vertices esta toda la informacion necesaria para el modelo)
     
     texture::model();
     glBegin(GL_TRIANGLES);
-    for (unsigned int i = 0; i < vertices.size(); ++i) {
-        glNormal3f(normals[i].x, normals[i].y, normals[i].z);
-        glTexCoord2f(uvs[i].x, uvs[i].y);
-        glVertex3f(vertices[i].x, vertices[i].y, vertices[i].z);
+    for (unsigned int i = 0; i < model->size(); ++i) {
+        glNormal3f(model->normals[i].x, model->normals[i].y, model->normals[i].z);
+        glTexCoord2f(model->uvs[i].x, model->uvs[i].y);
+        glVertex3f(model->vertices[i].x, model->vertices[i].y, model->vertices[i].z);
     }
     glEnd();
     glDisable(GL_TEXTURE_2D);
@@ -106,28 +90,25 @@ void init() {
 
 	glClearColor(.1f, .1f, .1f, 1.0);
 
-    ObjReader obj("resources/mercedes/clkgtr.obj"); // triangles
-    obj.loadObj(vertices, uvs, normals);
-    bool wireframe = false;
-    if (wireframe) {
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    }
-    else {
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    }
+    model = new ObjReader("resources/mercedes/clkgtr.obj"); // triangles
+    model->loadObj();
+}
+
+void end() {
+    delete model;
+    glutLeaveMainLoop();
 }
 
 int main(int argc, char** argv) {
+
 	timer = Timer();
 	glutInit(&argc, argv);
 
 	init();
     texture::init();
 
-	InputHandler& a = InputHandler::getInstance();
-    //a.setBehaviour(new ShowKeysBehaviour());
-	//a.setBehaviour(new ExtendedBehaviour());
-	rotation = 0.0f;
+	InputHandler& input = InputHandler::getInstance();
+    input.setBehaviour(new TypicalBehaviour());
 
 	camera.newPosition(GLVector3f::GLVector3f(5, 5, 5));
 	camera.lookAt(GLVector3f::GLVector3f(0, 0, 0));

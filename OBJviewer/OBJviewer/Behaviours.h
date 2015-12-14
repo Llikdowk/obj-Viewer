@@ -28,6 +28,8 @@ public:
 class TypicalBehaviour : public Behaviour {
 public:
     virtual void onKey(unsigned char key, int x, int y);
+private:
+    bool wireframe = false;
 };
 
 class ExtendedBehaviour : public TypicalBehaviour {
