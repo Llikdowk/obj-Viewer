@@ -27,4 +27,8 @@ private:
 
     char* path;
     bool readObj();
+
+    //falta: leer quads
+    //falta: leer v//vn
+    //falta: identificar grupos (es necesario?)
 };

@@ -1,11 +1,12 @@
 #include <gl/freeglut.h>
 #include "Behaviours.h"
 
-void end(); // from main
-
+namespace render {
+    void end();
+}
 void Behaviour::onKey(uchar key, int x, int y) {
     if (key == 27) {
-        end();
+        render::end();
     }
 };
 void Behaviour::onKeyUp(uchar key, int x, int y) {};

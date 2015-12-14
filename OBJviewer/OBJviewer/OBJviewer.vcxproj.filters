@@ -75,6 +75,9 @@
     <ClInclude Include="shapes.h">
       <Filter>Header Files\Util</Filter>
     </ClInclude>
+    <ClInclude Include="render.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GLMatrixf.cpp">

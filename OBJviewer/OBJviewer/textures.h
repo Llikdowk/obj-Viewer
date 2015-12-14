@@ -47,8 +47,8 @@ namespace texture {
         img::loadImageFile(path);
     }
 
-    static void init() {
-        defineTexture("resources/mercedes/mercedes.jpg", model_texture);
+    static void load(char* path) {
+        defineTexture(path, model_texture);
         registerTexture(model_texture);
     }
 }

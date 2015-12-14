@@ -166,6 +166,7 @@
     <ClInclude Include="Image.h" />
     <ClInclude Include="InputHandler.h" />
     <ClInclude Include="ObjReader.h" />
+    <ClInclude Include="render.h" />
     <ClInclude Include="shapes.h" />
     <ClInclude Include="textures.h" />
     <ClInclude Include="Timer.h" />
