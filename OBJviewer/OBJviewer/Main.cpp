@@ -12,6 +12,8 @@
 #include "Constants.h"
 #include "InputHandler.h"
 #include "ObjReader.h"
+#include "textures.h"
+#include "shapes.h"
 
 namespace {
     float rotation;
@@ -43,11 +45,10 @@ void display() {
 	camera.lookAt(GLVector3f::GLVector3f(0.0, 0.0, 0.0));
 
 	camera.update();
+    float color[3] = { .4f, .4f, .4f };
+    shapes::drawGrid(16, 16, 1, color);
 
-	//rotation += 90.0f * timer.getDeltaTime();
-	//rotation = std::fmodf(rotation, 360);
-    //glRotatef(rotation, 1.0, 0.0, 0.0);
-    
+    /*
     glPushMatrix();
 	glTranslatef(0.0, 0.0, -2.0);
 	glScalef(50.0, 50.0, 1.0);
@@ -56,6 +57,7 @@ void display() {
 	glColor3f(0.0, 0.0, 0.0);
 	glutWireCube(1);
     glPopMatrix();
+    */
 
     glPushMatrix();
     glRotatef(90, 1, 0, 0);
@@ -63,13 +65,16 @@ void display() {
     // falta: contexto opengl de texturas
     // falta: contexto opengl de luces
     // (en uvs y vertices esta toda la informacion necesaria para el modelo)
+    
+    texture::model();
     glBegin(GL_TRIANGLES);
     for (unsigned int i = 0; i < vertices.size(); ++i) {
-        //glNormal3f(normals[i].x, normals[i].y, normals[i].z);
-        //glTexCoord2f(uvs[i].x, uvs[i].y);
+        glNormal3f(normals[i].x, normals[i].y, normals[i].z);
+        glTexCoord2f(uvs[i].x, uvs[i].y);
         glVertex3f(vertices[i].x, vertices[i].y, vertices[i].z);
     }
     glEnd();
+    glDisable(GL_TEXTURE_2D);
     glPopMatrix();
         
 	glutSwapBuffers();
@@ -99,11 +104,11 @@ void init() {
 
 	glEnable(GL_DEPTH_TEST);
 
-	glClearColor(.7, 1.0, 1.0, 1.0);
+	glClearColor(.1f, .1f, .1f, 1.0);
 
     ObjReader obj("resources/mercedes/clkgtr.obj"); // triangles
     obj.loadObj(vertices, uvs, normals);
-    bool wireframe = true;
+    bool wireframe = false;
     if (wireframe) {
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     }
@@ -117,9 +122,10 @@ int main(int argc, char** argv) {
 	glutInit(&argc, argv);
 
 	init();
+    texture::init();
 
 	InputHandler& a = InputHandler::getInstance();
-    a.setBehaviour(new ShowKeysBehaviour());
+    //a.setBehaviour(new ShowKeysBehaviour());
 	//a.setBehaviour(new ExtendedBehaviour());
 	rotation = 0.0f;
 

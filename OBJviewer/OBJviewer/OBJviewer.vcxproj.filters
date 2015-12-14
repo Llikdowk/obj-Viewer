@@ -66,6 +66,15 @@
     <ClInclude Include="ObjReader.h">
       <Filter>Header Files\Util</Filter>
     </ClInclude>
+    <ClInclude Include="textures.h">
+      <Filter>Header Files\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="Image.h">
+      <Filter>Header Files\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="shapes.h">
+      <Filter>Header Files\Util</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GLMatrixf.cpp">
