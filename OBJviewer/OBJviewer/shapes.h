@@ -14,12 +14,12 @@ namespace shapes {
         glColor3f(color[0], color[1], color[2]);
         glBegin(GL_LINES);
         for (int i = -n; i <= n; ++i) {
-            glVertex3f(i*step, -range_x, 0);
-            glVertex3f(i*step, range_x, 0);
+            glVertex3f(i*step, 0, -range_x);
+            glVertex3f(i*step, 0, range_x);
         }
         for (int i = -m; i <= m; ++i) {
-            glVertex3f(-range_y, i*step, 0);
-            glVertex3f(range_y, i*step, 0);
+            glVertex3f(-range_y, 0, i*step);
+            glVertex3f(range_y, 0, i*step);
         }
         glEnd();
         glPopAttrib();
@@ -30,9 +30,36 @@ namespace shapes {
 
     void drawGrid(int n, int m, float step, float color[3]) {
         static GLuint gridlist = -1;
+        glDisable(GL_LIGHTING);
         if (gridlist == -1) {
             gridlist = createGridList(n, m, step, color);
         }
         glCallList(gridlist);
+        glEnable(GL_LIGHTING);
+    }
+
+    GLuint axis() {
+        GLuint draw_list = glGenLists(1);
+        glNewList(draw_list, GL_COMPILE);
+        glDisable(GL_LIGHTING);
+        glPushAttrib(GL_CURRENT_BIT | GL_LINE_BIT);
+        glLineWidth(4.0);
+        glBegin(GL_LINES);
+        glColor3f(1.0, 0.0, 0.0); // axis X: red
+        glVertex3f(0, 0, 0);
+        glVertex3f(1, 0, 0);
+        glColor3f(0, 1, 0); // axis Y: green
+        glVertex3f(0, 0, 0);
+        glVertex3f(0, 1, 0);
+        glColor3f(0, 0, 1); // axis Z: blue
+        glVertex3f(0, 0, 0);
+        glVertex3f(0, 0, 1);
+        glEnd();
+        glColor3f(0.5, 0.5, 0.5); // origin
+        glutWireCube(0.1);
+        glPopAttrib();
+        glEnable(GL_LIGHTING);
+        glEndList();
+        return draw_list;
     }
 }

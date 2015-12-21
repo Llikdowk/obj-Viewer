@@ -165,6 +165,7 @@
     <ClInclude Include="GLVector3f.h" />
     <ClInclude Include="Image.h" />
     <ClInclude Include="InputHandler.h" />
+    <ClInclude Include="lights.h" />
     <ClInclude Include="ObjReader.h" />
     <ClInclude Include="render.h" />
     <ClInclude Include="shapes.h" />
