@@ -37,7 +37,7 @@ namespace render {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         GLMatrixf::GLMatrixf m;
-        m.rotate(90.0f * timer.getDeltaTime(), GLVector3f::GLVector3f(0, 0, 1));
+        m.rotate(90.0f * timer.getDeltaTime()*.5f, GLVector3f::GLVector3f(0, 0, 1));
         GLVector3f::GLVector3f newPos = GLMatrixf::transformPoint(m, camera.position);
         
         camera.newPosition(newPos);
@@ -79,8 +79,8 @@ namespace render {
 
     void init() {
         glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH | GLUT_MULTISAMPLE);
-        glutInitWindowSize(400, 400);
-        glutCreateWindow("Misc Test");
+        glutInitWindowSize(800, 600);
+        glutCreateWindow(".obj reader");
 
         glutDisplayFunc(display);
         glutReshapeFunc(reshape);
@@ -90,7 +90,7 @@ namespace render {
         texture::load("resources/mercedes/mercedes.jpg"); 
         model = new ObjReader("resources/mercedes/clkgtr.obj"); // triangles
         //model = new ObjReader("resources/delorean/DeLorean.obj"); // quads -> to be done
-        model->loadObj();
+        model->createModel();
         timer = Timer();
         camera.newPosition(GLVector3f::GLVector3f(5, 5, 5));
         camera.lookAt(GLVector3f::GLVector3f(0, 0, 0));

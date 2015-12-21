@@ -23,3 +23,5 @@ namespace GLVector3f {
 
 	GLVector3f project(const GLVector3f& v1, const GLVector3f& v2);
 }
+
+typedef GLVector3f::GLVector3f vec3;

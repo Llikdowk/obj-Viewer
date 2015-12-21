@@ -9,24 +9,27 @@
 #include "GLVector3f.h"
 
 class ObjReader {
+    
 public:
+
     ObjReader(char* path);
-    void loadObj();
+    void createModel();
+    void changeModel(char* path);
     int size();
 
-    std::vector< GLVector3f::GLVector3f > vertices;
-    std::vector< GLVector3f::GLVector3f > uvs; // preferred: Vec2
-    std::vector< GLVector3f::GLVector3f > normals;
+    std::vector<vec3> vertices;
+    std::vector<vec3> uvs; // preferred: Vec2
+    std::vector<vec3> normals;
 
 
 private:
+
     std::vector< int > vertexIndices, uvIndices, normalIndices;
-    std::vector< GLVector3f::GLVector3f > verticesValues;
-    std::vector< GLVector3f::GLVector3f > uvsValues; // preferred: Vec2
-    std::vector< GLVector3f::GLVector3f > normalsValues;
+    std::vector< vec3 > vertexValues, uvValues, normalValues;
 
     char* path;
     bool readObj();
+    void clear();
 
     //falta: leer quads
     //falta: leer v//vn

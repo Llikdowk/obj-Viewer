@@ -1,32 +1,40 @@
 #include "ObjReader.h"
+//typedef GLVector3f::GLVector3f vec3;
 
 ObjReader::ObjReader(char* path) : path(path) {
-    loadObj();
+}
+
+void ObjReader::changeModel(char* path) {
+    this->path = path;
+    clear();
+}
+
+void ObjReader::clear() {
+    vertexIndices.clear();
+    uvIndices.clear();
+    normalIndices.clear();
+    vertexValues.clear();
+    uvValues.clear();
+    normalValues.clear();
 }
 
 int ObjReader::size() {
     return vertices.size();
 }
 
-void ObjReader::loadObj() {
-    readObj();
-
-    for (int i = 0; i < vertexIndices.size(); i++) {
-
-        int vertexIndex = vertexIndices[i];
-        GLVector3f::GLVector3f vertex = verticesValues[vertexIndex - 1];
-        vertices.push_back(vertex);
-
-        //std::cout << i << " " << vertexIndices[i] << std::endl;
-        int uvIndex = uvIndices[i];
-        GLVector3f::GLVector3f uv = uvsValues[uvIndex - 1];
-        uvs.push_back(uv);
-
-
-        int normalIndex = normalIndices[i];
-        GLVector3f::GLVector3f normal = normalsValues[normalIndex - 1];
-        normals.push_back(normal);
+void loadValues(const std::vector<int> &indices, const std::vector<vec3> &values, std::vector<vec3> &out) {
+    for (int i = 0; i < indices.size(); ++i) {
+        int index = indices[i];
+        vec3 value = values[index - 1];
+        out.push_back(value);
     }
+}
+
+void ObjReader::createModel() {
+    readObj();
+    loadValues(vertexIndices, vertexValues, vertices);
+    loadValues(uvIndices, uvValues, uvs);
+    loadValues(normalIndices, normalValues, normals);
 }
 
 bool ObjReader::readObj() {
@@ -61,7 +69,7 @@ bool ObjReader::readObj() {
             }
             uv.z = 0;
             //std::cout << uv.x << " " << uv.y << " " << uv.z << std::endl;
-            uvsValues.push_back(uv);
+            uvValues.push_back(uv);
             ++vt_index;
         }
         else if (line[0] == 'v' && line[1] == 'n') {
@@ -75,7 +83,7 @@ bool ObjReader::readObj() {
                 break;
             }
             //std::cout << normal.x << " " << normal.y << " " << normal.z << std::endl;
-            normalsValues.push_back(normal);
+            normalValues.push_back(normal);
             ++vn_index;
         }
         else if (line[0] == 'v') {
@@ -88,7 +96,7 @@ bool ObjReader::readObj() {
                 break;
             }
             //std::cout << vertex.x << " " << vertex.y << " " << vertex.z << std::endl;
-            verticesValues.push_back(vertex);
+            vertexValues.push_back(vertex);
             ++v_index;
 
         }
