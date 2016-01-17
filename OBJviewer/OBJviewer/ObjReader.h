@@ -22,6 +22,7 @@ public:
     std::vector<vec3> normals;
 
     std::string mtl_path;
+    bool quads = false;
 
 private:
 
@@ -36,6 +37,8 @@ private:
     void parse_vt(std::string line, int linenum);
     void parse_vn(std::string line, int linenum);
     void parse_f(std::string line, int linenum);
+
+    void triangularize();
 
     //falta: leer quads
     //falta: leer v//vn

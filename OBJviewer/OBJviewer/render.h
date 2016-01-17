@@ -110,10 +110,16 @@ namespace render {
         lights::init();
 
         //texture::load("resources/mercedes/mercedes.jpg"); 
-        model = new ObjReader("resources/mercedes/clkgtr.obj"); // triangles
-        //model = new ObjReader("resources/delorean/DeLorean.obj"); // quads -> to be done
+        //model = new ObjReader("resources/mercedes/clkgtr.obj"); // triangles
+        //model = new ObjReader("resources/delorean/DeLorean.objtrian"); // quads -> to be done
 
+        //texture::load("resources/house/Texture/HouseBody.bmp");
         //model = new ObjReader("resources/house/3dmodels/house.obj");
+
+        //texture::load("resources/organodron/Maps/cta4.jpg");
+        //model = new ObjReader("resources/organodron/organodron.objtrian");
+
+        model = new ObjReader("resources/street/street.obj");
         try {
             model->createModel();
         }
@@ -121,7 +127,7 @@ namespace render {
             std::cerr << e.what();
         }
         timer = Timer();
-        camera.newPosition(GLVector3f::GLVector3f(5, 3, 2));
+        camera.newPosition(GLVector3f::GLVector3f(5, 3, 10));
         camera.lookAt(GLVector3f::GLVector3f(0, 0, 0));
         timer.startDeltaChrono();
     }
