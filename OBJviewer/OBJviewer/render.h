@@ -78,8 +78,8 @@ namespace render {
         glMatrixMode(GL_MODELVIEW);
         glBegin(GL_TRIANGLES);
         for (unsigned int i = 0; i < model->size(); ++i) {
-            glNormal3f(model->normals[i].x, model->normals[i].y, model->normals[i].z);
-            glTexCoord2f(model->uvs[i].x, model->uvs[i].y);
+            if (model->hasNormals) glNormal3f(model->normals[i].x, model->normals[i].y, model->normals[i].z);
+            if (model->hasTexture) glTexCoord2f(model->uvs[i].x, model->uvs[i].y);
             glVertex3f(model->vertices[i].x, model->vertices[i].y, model->vertices[i].z);
         }
         glEnd();
@@ -107,18 +107,22 @@ namespace render {
         glClearColor(.1f, .1f, .1f, 1.0);
         
         axis = shapes::axis();
+        glEnable(GL_LIGHTING);
         lights::init();
 
         //texture::load("resources/mercedes/mercedes.jpg"); 
         //model = new ObjReader("resources/mercedes/clkgtr.obj"); // triangles
-        //model = new ObjReader("resources/delorean/DeLorean.objtrian"); // quads -> to be done
 
+        //texture::load("resources/delorean/Textures/grill.png");
+        //model = new ObjReader("resources/delorean/DeLorean.objtrian"); // quads -> to be done
+        
         //texture::load("resources/house/Texture/HouseBody.bmp");
         //model = new ObjReader("resources/house/3dmodels/house.obj");
 
         //texture::load("resources/organodron/Maps/cta4.jpg");
-        //model = new ObjReader("resources/organodron/organodron.objtrian");
+        //model = new ObjReader("resources/organodron/organodron.obj");
 
+        texture::load("resources/street/Building_V01_C.png");
         model = new ObjReader("resources/street/street.obj");
         try {
             model->createModel();
@@ -126,8 +130,13 @@ namespace render {
         catch (const std::invalid_argument& e) {
             std::cerr << e.what();
         }
+
+        if (!model->hasNormals) {
+            glDisable(GL_LIGHTING);
+        }
+
         timer = Timer();
-        camera.newPosition(GLVector3f::GLVector3f(5, 3, 10));
+        camera.newPosition(GLVector3f::GLVector3f(5, 5, 10));
         camera.lookAt(GLVector3f::GLVector3f(0, 0, 0));
         timer.startDeltaChrono();
     }

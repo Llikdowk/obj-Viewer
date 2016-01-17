@@ -23,10 +23,12 @@ public:
 
     std::string mtl_path;
     bool quads = false;
+    bool hasNormals = true;
+    bool hasTexture = true;
 
 private:
 
-    std::vector< int > vertexIndices, uvIndices, normalIndices;
+    std::vector< long > vertexIndices, uvIndices, normalIndices;
     std::vector< vec3 > vertexValues, uvValues, normalValues;
 
     char* path;

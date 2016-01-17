@@ -9,8 +9,6 @@ namespace lights {
     };
 
     static void init() {
-        glEnable(GL_LIGHTING);
-
         GLfloat Al0[] = { .5f, .5f, .5f, 1.0f };
         GLfloat Dl0[] = { .05f, .05f, .05f, 1.0f };
         GLfloat Sl0[] = { .02f, .02f, .02f, 1.0f };
