@@ -133,8 +133,11 @@ void ObjReader::triangularize() {
                 myfile << f2 + '\n';
             }
         }
-        else if (std::regex_match(line, std::regex("f ((\\+|-)?[[:digit:]]+\/(\\+|-)?[[:digit:]]+ ){3}"))) { // v/vt
-
+        else if (std::regex_match(line, std::regex("f ((\\+|-)?[[:digit:]]+\/+(\\+|-)?[[:digit:]]+ ){4}"))) { // v/vt
+            std::string sep = "/";
+            if (line.find("//") != std::string::npos) {
+                sep = "//";
+            }
             int v[8];
             line = line.substr(1, line.size());
             std::replace(line.begin(), line.end(), '/', ' ');
@@ -145,44 +148,19 @@ void ObjReader::triangularize() {
                 >> v[4] >> v[5]
                 >> v[6] >> v[7]
                 ) {
+
                 std::string f1;
-                f1 = "f " + std::to_string(v[0]) + '/' + std::to_string(v[1]) + ' ';
-                f1 += std::to_string(v[2]) + '/' + std::to_string(v[3]) + ' ';
-                f1 += std::to_string(v[4]) + '/' + std::to_string(v[5]) + ' ';
+                f1 = "f " + std::to_string(v[0]) + sep + std::to_string(v[1]) + ' ';
+                f1 += std::to_string(v[2]) + sep + std::to_string(v[3]) + ' ';
+                f1 += std::to_string(v[4]) + sep + std::to_string(v[5]) + ' ';
 
                 std::string f2;
-                f2 = "f " + std::to_string(v[0]) + '/' + std::to_string(v[1]) + ' ';
-                f2 += std::to_string(v[4]) + '/' + std::to_string(v[5]) + ' ';
-                f2 += std::to_string(v[6]) + '/' + std::to_string(v[7]) + ' ';
+                f2 = "f " + std::to_string(v[0]) + sep + std::to_string(v[1]) + ' ';
+                f2 += std::to_string(v[4]) + sep + std::to_string(v[5]) + ' ';
+                f2 += std::to_string(v[6]) + sep + std::to_string(v[7]) + ' ';
 
                 myfile << f1 + '\n';
                 myfile << f2 + '\n';
-            }
-            else if (std::regex_match(line, std::regex("f ((\\+|-)?[[:digit:]]+\/\/(\\+|-)?[[:digit:]]+ ){4}"))) { // v//vn
-
-                int v[8];
-                line = line.substr(1, line.size());
-                std::replace(line.begin(), line.end(), '/', ' ');
-                std::istringstream iss(line);
-                if (iss // f v1/vt1/vn1 v2/vt2/vn2 v3/vt3/vn3
-                    >> v[0] >> v[1]
-                    >> v[2] >> v[3]
-                    >> v[4] >> v[5]
-                    >> v[6] >> v[7]
-                    ) {
-                    std::string f1;
-                    f1 = "f " + std::to_string(v[0]) + "//" + std::to_string(v[1]) + ' ';
-                    f1 += std::to_string(v[2]) + "//" + std::to_string(v[3]) + ' ';
-                    f1 += std::to_string(v[6]) + "//" + std::to_string(v[7]) + ' ';
-
-                    std::string f2;
-                    f2 = "f " + std::to_string(v[2]) + "//" + std::to_string(v[3]) + ' ';
-                    f2 += std::to_string(v[4]) + "//" + std::to_string(v[5]) + ' ';
-                    f2 += std::to_string(v[6]) + "//" + std::to_string(v[7]) + ' ';
-
-                    myfile << f1 + '\n';
-                    myfile << f2 + '\n';
-                }
             }   
         }
         else {
@@ -199,7 +177,7 @@ void ObjReader::readObj() {
     static bool debug = false;
     std::string newPath = path;
     newPath += "trian";
-    std::ifstream file(path);
+    std::ifstream file(newPath);
 
     if (!file) fileNotFoundError(path);
 
@@ -245,10 +223,10 @@ void ObjReader::readObj() {
         //f
         else if (line[0] == 'f') {
             int vertexIndex[4], uvIndex[4], normalIndex[4];
-            int x, y, z;
-            line = line.substr(1, line.size());
-            std::replace(line.begin(), line.end(), '/', ' ');
-            std::istringstream iss(line);
+
+            std::string lineaux = line.substr(1, line.size());
+            std::replace(lineaux.begin(), lineaux.end(), '/', ' ');
+            std::istringstream iss(lineaux);
             if (iss // f v1/vt1/vn1 v2/vt2/vn2 v3/vt3/vn3
                   >> vertexIndex[0] >> uvIndex[0] >> normalIndex[0]
                   >> vertexIndex[1] >> uvIndex[1] >> normalIndex[1]
@@ -259,10 +237,11 @@ void ObjReader::readObj() {
                 //}
             }
             else {
+                std::string lineaux = line.substr(1, line.size());
+                std::replace(lineaux.begin(), lineaux.end(), '/', ' ');
+                std::istringstream iss(lineaux);
 
-                std::istringstream iss(line);
-
-                if (std::regex_match(line, std::regex("f ((\\+|-)?[[:digit:]]+\/\/(\\+|-)?[[:digit:]]+ ){4}"))) { // v//vn
+                if (std::regex_match(line, std::regex("f ((\\+|-)?[[:digit:]]+\/\/(\\+|-)?[[:digit:]]+ ){3}"))) { // v//vn
                     if ((iss
                          >> vertexIndex[0] >> normalIndex[0]
                          >> vertexIndex[1] >> normalIndex[1]

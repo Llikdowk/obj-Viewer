@@ -99,7 +99,7 @@ namespace render {
     void init() {
         glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH | GLUT_MULTISAMPLE);
         glutInitWindowSize(800, 600);
-        glutCreateWindow("Viewer");
+        glutCreateWindow("Object viewer");
 
         glutDisplayFunc(display);
         glutReshapeFunc(reshape);
@@ -114,16 +114,16 @@ namespace render {
         //model = new ObjReader("resources/mercedes/clkgtr.obj"); // triangles
 
         //texture::load("resources/delorean/Textures/grill.png");
-        //model = new ObjReader("resources/delorean/DeLorean.objtrian"); // quads -> to be done
+        //model = new ObjReader("resources/delorean/DeLorean.objtrian");
         
-        //texture::load("resources/house/Texture/HouseBody.bmp");
-        //model = new ObjReader("resources/house/3dmodels/house.obj");
+        texture::load("resources/house/Texture/HouseBody.bmp");
+        model = new ObjReader("resources/house/3dmodels/house.obj");
 
         //texture::load("resources/organodron/Maps/cta4.jpg");
         //model = new ObjReader("resources/organodron/organodron.obj");
 
-        texture::load("resources/street/Building_V01_C.png");
-        model = new ObjReader("resources/street/street.obj");
+        //texture::load("resources/street/Building_V01_C.png");
+        //model = new ObjReader("resources/street/street.obj");
         try {
             model->createModel();
         }
@@ -136,7 +136,7 @@ namespace render {
         }
 
         timer = Timer();
-        camera.newPosition(GLVector3f::GLVector3f(5, 5, 10));
+        camera.newPosition(GLVector3f::GLVector3f(5, 100, 600));
         camera.lookAt(GLVector3f::GLVector3f(0, 0, 0));
         timer.startDeltaChrono();
     }
