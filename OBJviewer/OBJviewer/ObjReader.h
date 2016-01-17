@@ -21,6 +21,8 @@ public:
     std::vector<vec3> uvs; // preferred: Vec2
     std::vector<vec3> normals;
 
+    std::string mtl_path;
+
 private:
 
     std::vector< int > vertexIndices, uvIndices, normalIndices;

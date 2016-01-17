@@ -1,4 +1,6 @@
 #include "ObjReader.h"
+#include <regex>
+
 //typedef GLVector3f::GLVector3f vec3;
 
 ObjReader::ObjReader(char* path) : path(path) {
@@ -117,15 +119,38 @@ void ObjReader::readObj() {
 
         }
         //f
-        else if (line[0] == 'f') { // TODO: faces like-> f v1//vn1 v2//vn2 v3//vn3 ...
-            int vertexIndex[3], uvIndex[3], normalIndex[3];
+        else if (line[0] == 'f') {
+            int vertexIndex[4], uvIndex[4], normalIndex[4];
+            bool quads = false;
 
             line = line.substr(1, line.size());
             std::replace(line.begin(), line.end(), '/', ' ');
             std::istringstream iss(line);
-            if (!(iss >> vertexIndex[0] >> uvIndex[0] >> normalIndex[0] >> vertexIndex[1] >> uvIndex[1] >> normalIndex[1] >> vertexIndex[2] >> uvIndex[2] >> normalIndex[2])) {
-                parsingError("f", linenum);
+            if (iss // f v1/vt1/vn1 v2/vt2/vn2 v3/vt3/vn3
+                  >> vertexIndex[0] >> uvIndex[0] >> normalIndex[0]
+                  >> vertexIndex[1] >> uvIndex[1] >> normalIndex[1]
+                  >> vertexIndex[2] >> uvIndex[2] >> normalIndex[2]
+                  )
+            {
+                if (iss >> vertexIndex[3] >> uvIndex[3] >> normalIndex[3]) {
+                    std::cout << "is QUAD!" << std::endl;
+                }//quads
+            } else {
+                std::istringstream iss(line);
+                if ((iss // f v1//vn1 v2//vn2 v3//vn3 v4//vn4
+                      >> vertexIndex[0] >> normalIndex[0]
+                      >> vertexIndex[1] >> normalIndex[1]
+                      >> vertexIndex[2] >> normalIndex[2]
+                      >> vertexIndex[3] >> normalIndex[3]
+                      )
+                    ) {
+                    quads = true;
+                }
+                else {
+                    parsingError("f", linenum);
+                }
             }
+               
 
             if (vertexIndex[0] > 0) vertexIndices.push_back(vertexIndex[0]);
             else vertexIndices.push_back(v_index + vertexIndex[0]);
@@ -155,6 +180,10 @@ void ObjReader::readObj() {
 
             if (normalIndex[0] > 0) normalIndices.push_back(normalIndex[2]);
             else normalIndices.push_back(vn_index + normalIndex[2]);
+        }
+        else if (line.substr(0, 6) == "mtllib"){
+            mtl_path = line.substr(7, line.size());
+            //load_mtl();
         }
 
     }

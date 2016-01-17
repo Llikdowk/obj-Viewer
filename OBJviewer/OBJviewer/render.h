@@ -109,9 +109,11 @@ namespace render {
         axis = shapes::axis();
         lights::init();
 
-        texture::load("resources/mercedes/mercedes.jpg"); 
+        //texture::load("resources/mercedes/mercedes.jpg"); 
         model = new ObjReader("resources/mercedes/clkgtr.obj"); // triangles
         //model = new ObjReader("resources/delorean/DeLorean.obj"); // quads -> to be done
+
+        //model = new ObjReader("resources/house/3dmodels/house.obj");
         try {
             model->createModel();
         }
