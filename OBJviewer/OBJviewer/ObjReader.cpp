@@ -13,7 +13,6 @@ inline bool exists_file(const std::string& name) {
         return false;
     }
 }
-//typedef GLVector3f::GLVector3f vec3;
 
 ObjReader::ObjReader(char* path) : path(path) {
 }
@@ -36,7 +35,7 @@ int ObjReader::size() {
     return vertices.size();
 }
 
-bool loadValues(const std::vector<long> &indices, const std::vector<vec3> &values, std::vector<vec3> &out) {
+bool ObjReader::loadValues(const std::vector<long> &indices, const std::vector<vec3> &values, std::vector<vec3> &out) {
     if (values.size() > 0) {
         for (int i = 0; i < indices.size(); ++i) {
             long index = indices[i];
@@ -62,6 +61,21 @@ void ObjReader::createModel() {
     if (!loadValues(normalIndices, normalValues, normals)) {
         hasNormals = false;
         std::cout << "MODEL HAS NO NORMALS" << std::endl;
+    }
+
+    int i;
+    int m_index = 0;
+    for (i = 0; i < vertexIndices.size(); ++i) {
+        long index = vertexIndices[i];
+        if (index == materials[m_index].start) {
+            materials[m_index].start = i; // FIXME!!!!!!
+            ++m_index;
+        }
+    }
+    //materials[materials.size() - 1].start = i-1;
+    //debug
+    for (auto it = materials.begin(); it != materials.end(); ++it) {
+        std::cout << it->m_name << " " << it->start << std::endl;
     }
 }
 
@@ -224,7 +238,7 @@ void ObjReader::readObj() {
         }
         //f
         else if (line[0] == 'f') {
-            int vertexIndex[4], uvIndex[4], normalIndex[4];
+            int vertexIndex[3], uvIndex[3], normalIndex[3];
 
             std::string lineaux = line.substr(1, line.size());
             std::replace(lineaux.begin(), lineaux.end(), '/', ' ');
@@ -305,7 +319,29 @@ void ObjReader::readObj() {
                 std::cerr << e.what() << ": No materials defined" << std::endl;
             }
         }
+        else if (line.substr(0, 6) == "usemtl") {
+            struct node n;
+            n.m_name = line.substr(7, line.size());
+            n.start = v_index;
+            materials.push_back(n);
+        }
 
     }
-    //std::cout << "SIZES: " << vertexIndices.size() << " " << uvIndices.size() << " " << normalIndices.size() << std::endl;
+    
+    struct node n;
+    n.start = v_index;
+    materials.push_back(n);
+
+    // debug:
+    std::cout << "SIZES: " << vertexIndices.size() << " " << uvIndices.size() << " " << normalIndices.size() << std::endl;
+}
+
+const MtlReader::m_def ObjReader::getMaterialInfo(MtlReader::m_name name) {
+    //std::cout << name << std::endl;
+    //std::cout << mtl.materials.size() << std::endl;
+
+    MtlReader::m_def res;
+    res = mtl.materials.at(name);
+    
+    return res;
 }

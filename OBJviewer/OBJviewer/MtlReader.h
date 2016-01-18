@@ -45,7 +45,7 @@ public:
         m_def value;
         std::smatch match;
         while (std::getline(file, line)) {
-            if (std::regex_search(line, match, std::regex("newmtl(.*)"))) {
+            if (std::regex_search(line, match, std::regex("newmtl (.*)"))) {
                 if (key.size() > 0) {
                     materials[key] = value;
                 }
@@ -84,7 +84,6 @@ public:
                 float y = std::stof(match[2]);
                 float z = std::stof(match[3]);
                 value.Kd = vec3(x, y, z);
-                std::cout << value.Kd.x << " " << value.Kd.y << " " << value.Kd.z << std::endl;
             }
             else if (std::regex_search(line, match, std::regex("Ks ([0-9]+\\.?[0-9]* )([0-9]+\\.?[0-9]* )([0-9]+\\.?[0-9]*)"))) {
                 float x = std::stof(match[1]);

@@ -76,13 +76,27 @@ namespace render {
 
         texture::model();
         glMatrixMode(GL_MODELVIEW);
-        glBegin(GL_TRIANGLES);
-        for (unsigned int i = 0; i < model->size(); ++i) {
-            if (model->hasNormals) glNormal3f(model->normals[i].x, model->normals[i].y, model->normals[i].z);
-            if (model->hasTexture) glTexCoord2f(model->uvs[i].x, model->uvs[i].y);
-            glVertex3f(model->vertices[i].x, model->vertices[i].y, model->vertices[i].z);
+        if (model->materials.size() < 2) {
+            glBegin(GL_TRIANGLES);
+            for (unsigned int i = 0; i < model->size(); ++i) {
+                if (model->hasNormals) glNormal3f(model->normals[i].x, model->normals[i].y, model->normals[i].z);
+                if (model->hasTexture) glTexCoord2f(model->uvs[i].x, model->uvs[i].y);
+                glVertex3f(model->vertices[i].x, model->vertices[i].y, model->vertices[i].z);
+            }
+            glEnd();
         }
-        glEnd();
+        else {
+            glBegin(GL_TRIANGLES);
+            for (unsigned int i = 0; i < model->materials.size()-1; ++i) {
+                MtlReader::m_def mat = model->getMaterialInfo(model->materials[i].m_name);
+                for (unsigned int j = model->materials[i].start; j < model->materials[i + 1].start; ++j) {
+                    if (model->hasNormals) glNormal3f(model->normals[j].x, model->normals[j].y, model->normals[j].z);
+                    if (model->hasTexture) glTexCoord2f(model->uvs[j].x, model->uvs[j].y);
+                    glVertex3f(model->vertices[j].x, model->vertices[j].y, model->vertices[j].z);
+                }
+            }
+            glEnd();
+        }
         glDisable(GL_TEXTURE_2D);
         glPopMatrix();
         
@@ -110,7 +124,7 @@ namespace render {
         glEnable(GL_LIGHTING);
         lights::init();
 
-        texture::load("resources/mercedes/mercedes.jpg"); 
+        //texture::load("resources/mercedes/mercedes.jpg"); 
         model = new ObjReader("resources/mercedes/clkgtr.obj");
 
         //texture::load("resources/delorean/Textures/grill.png");
@@ -136,7 +150,7 @@ namespace render {
         }
 
         timer = Timer();
-        camera.newPosition(GLVector3f::GLVector3f(5, 5, 10));
+        camera.newPosition(GLVector3f::GLVector3f(5, 3, 4));
         camera.lookAt(GLVector3f::GLVector3f(0, 0, 0));
         timer.startDeltaChrono();
     }
