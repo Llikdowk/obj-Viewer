@@ -76,27 +76,17 @@ namespace render {
 
         texture::model();
         glMatrixMode(GL_MODELVIEW);
-        if (model->materials.size() < 2) {
+        for (int k = 0; k < model->mats.size(); ++k) {
+            ObjReader::node& node = model->mats[k];
             glBegin(GL_TRIANGLES);
-            for (unsigned int i = 0; i < model->size(); ++i) {
-                if (model->hasNormals) glNormal3f(model->normals[i].x, model->normals[i].y, model->normals[i].z);
-                if (model->hasTexture) glTexCoord2f(model->uvs[i].x, model->uvs[i].y);
-                glVertex3f(model->vertices[i].x, model->vertices[i].y, model->vertices[i].z);
+            for (unsigned int i = 0; i < node.vertices.size(); ++i) {
+                if (node.hasNormals) glNormal3f(node.normals[i].x, node.normals[i].y, node.normals[i].z);
+                if (node.hasTexture) glTexCoord2f(node.uvs[i].x, node.uvs[i].y);
+                glVertex3f(node.vertices[i].x, node.vertices[i].y, node.vertices[i].z);
             }
             glEnd();
         }
-        else {
-            glBegin(GL_TRIANGLES);
-            for (unsigned int i = 0; i < model->materials.size()-1; ++i) {
-                MtlReader::m_def mat = model->getMaterialInfo(model->materials[i].m_name);
-                for (unsigned int j = model->materials[i].start; j < model->materials[i + 1].start; ++j) {
-                    if (model->hasNormals) glNormal3f(model->normals[j].x, model->normals[j].y, model->normals[j].z);
-                    if (model->hasTexture) glTexCoord2f(model->uvs[j].x, model->uvs[j].y);
-                    glVertex3f(model->vertices[j].x, model->vertices[j].y, model->vertices[j].z);
-                }
-            }
-            glEnd();
-        }
+        
         glDisable(GL_TEXTURE_2D);
         glPopMatrix();
         

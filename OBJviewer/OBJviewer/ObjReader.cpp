@@ -31,10 +31,6 @@ void ObjReader::clear() {
     normalValues.clear();
 }
 
-int ObjReader::size() {
-    return vertices.size();
-}
-
 bool ObjReader::loadValues(const std::vector<long> &indices, const std::vector<vec3> &values, std::vector<vec3> &out) {
     if (values.size() > 0) {
         for (int i = 0; i < indices.size(); ++i) {
@@ -53,30 +49,18 @@ bool ObjReader::loadValues(const std::vector<long> &indices, const std::vector<v
 void ObjReader::createModel() {
     triangularize();
     readObj();
-    loadValues(vertexIndices, vertexValues, vertices);
-    if (!loadValues(uvIndices, uvValues, uvs)) {
-        hasTexture = false;
-        std::cout << "MODEL HAS NO TEXTURE COORDINATES" << std::endl;
+    bool texture = false;
+    bool normals = false;
+    for (auto it = mats.begin(); it != mats.end(); ++it) {
+        if (texture == true && normals == true) break;
+        
+        texture = it->hasTexture || texture;
+        normals = it->hasNormals || normals;
     }
-    if (!loadValues(normalIndices, normalValues, normals)) {
-        hasNormals = false;
-        std::cout << "MODEL HAS NO NORMALS" << std::endl;
-    }
-
-    int i;
-    int m_index = 0;
-    for (i = 0; i < vertexIndices.size(); ++i) {
-        long index = vertexIndices[i];
-        if (index == materials[m_index].start) {
-            materials[m_index].start = i; // FIXME!!!!!!
-            ++m_index;
-        }
-    }
-    //materials[materials.size() - 1].start = i-1;
-    //debug
-    for (auto it = materials.begin(); it != materials.end(); ++it) {
-        std::cout << it->m_name << " " << it->start << std::endl;
-    }
+    hasTexture = texture;
+    hasNormals = normals;
+    if (!texture) std::cout << "MODEL HAS NO TEXTURE COORDINATES" << std::endl;
+    if (!normals) std::cout << "MODEL HAS NO NORMALS" << std::endl;
 }
 
 void ObjReader::parse_vt(std::string line, int linenum) {
@@ -187,6 +171,18 @@ void ObjReader::triangularize() {
     }
     myfile.close();
     std::cout << "*TRIANGULARIZATION DONE*" << std::endl;
+}
+
+void ObjReader::process_current() {
+    if (vertexIndices.size() > 0) {
+        loadValues(vertexIndices, vertexValues, mats.back().vertices);
+        mats.back().hasTexture = loadValues(uvIndices, uvValues, mats.back().uvs);
+        mats.back().hasNormals = loadValues(normalIndices, normalValues, mats.back().normals);
+
+        vertexIndices.clear();
+        uvIndices.clear();
+        normalIndices.clear();
+    }
 }
 
 void ObjReader::readObj() {
@@ -311,6 +307,7 @@ void ObjReader::readObj() {
             else normalIndices.push_back(vn_index + normalIndex[2]);  
         }
         else if (line.substr(0, 6) == "mtllib"){
+            process_current();
             std::string mtl_name = line.substr(7, line.size());
             try {
                 std::string current_folder = path.substr(0, path.rfind('/')+1);
@@ -321,19 +318,14 @@ void ObjReader::readObj() {
         }
         else if (line.substr(0, 6) == "usemtl") {
             struct node n;
-            n.m_name = line.substr(7, line.size());
-            n.start = v_index;
-            materials.push_back(n);
+            n.material_name = line.substr(7, line.size());
+            mats.push_back(n);
         }
 
     }
-    
-    struct node n;
-    n.start = v_index;
-    materials.push_back(n);
-
+    process_current();
     // debug:
-    std::cout << "SIZES: " << vertexIndices.size() << " " << uvIndices.size() << " " << normalIndices.size() << std::endl;
+    // std::cout << "SIZES: " << vertexIndices.size() << " " << uvIndices.size() << " " << normalIndices.size() << std::endl;
 }
 
 const MtlReader::m_def ObjReader::getMaterialInfo(MtlReader::m_name name) {
