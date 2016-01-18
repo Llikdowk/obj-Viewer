@@ -24,6 +24,7 @@ namespace render {
         ObjReader* model;
         GLuint axis;
         GLint width = 0, height = 0;
+        GLuint drawmodel_list;
     }
 
     void orthographic() {
@@ -74,13 +75,14 @@ namespace render {
 
         shapes::drawGrid(16, 16, 1, color);
 
-        //texture::model();
-        std::string current_folder = model->path.substr(0, model->path.rfind('/') + 1);
         glMatrixMode(GL_MODELVIEW);
-        for (int k = 0; k < model->mats.size(); ++k) {
-            ObjReader::node& node = model->mats[k];
-            const MtlReader::m_def mat = model->getMaterialInfo(node.material_name);
+        std::string current_folder = model->path.substr(0, model->path.rfind('/') + 1);
+        
+        for (int k = 0; k < model->mats.size(); ++k) {   
             
+            ObjReader::node& node = model->mats[k];
+            
+            const MtlReader::m_def mat = model->getMaterialInfo(node.material_name);
             GLfloat Ke[] = { mat.Ke.x, mat.Ke.y, mat.Ke.z, 1.0f };
             GLfloat Ka[] = { mat.Ka.x, mat.Ka.y, mat.Ka.z, 1.0f };
             GLfloat Kd[] = { mat.Kd.x, mat.Kd.y, mat.Kd.z, 1.0f };
@@ -95,10 +97,7 @@ namespace render {
             glEnable(GL_COLOR_MATERIAL);
             
             if (texture_path.size() > 0) {
-                std::replace(texture_path.begin(), texture_path.end(), '\\', '/');
-                std::string complete_path = current_folder + texture_path;
-                texture::load(complete_path);
-                texture::model();
+                texture::loadTexture(texture_path);
             }
             
             glBegin(GL_TRIANGLES);
@@ -108,6 +107,7 @@ namespace render {
                 glVertex3f(node.vertices[i].x, node.vertices[i].y, node.vertices[i].z);
             }
             glEnd();
+            
         }
         
         glDisable(GL_TEXTURE_2D);
@@ -136,33 +136,45 @@ namespace render {
         axis = shapes::axis();
         glEnable(GL_LIGHTING);
         lights::init();
-
-        //texture::load("resources/mercedes/mercedes.jpg"); 
-        //model = new ObjReader("resources/mercedes/clkgtr.obj");
-
-        //texture::load("resources/delorean/Textures/grill.png");
-        //model = new ObjReader("resources/delorean/DeLorean.objtrian");
-        
-        //texture::load("resources/house/Texture/HouseBody.bmp");
-        //model = new ObjReader("resources/house/3dmodels/house.obj");
-
-        //texture::load("resources/organodron/Maps/cta4.jpg");
-        //model = new ObjReader("resources/organodron/organodron.obj");
-
-        //texture::load("resources/street/Building_V01_C.png");
-        model = new ObjReader("resources/street/street.obj");
         try {
-            model->createModel();
+            //texture::load("resources/mercedes/mercedes.jpg"); 
+            //model = new ObjReader("resources/mercedes/clkgtr.obj");
+
+            //texture::load("resources/delorean/Textures/grill.png");
+            //model = new ObjReader("resources/delorean/DeLorean.obj");
+        
+            //texture::load("resources/house/Texture/HouseBody.bmp");
+            //model = new ObjReader("resources/house/3dmodels/house.obj");
+
+            //texture::load("resources/organodron/Maps/cta4.jpg");
+            //model = new ObjReader("resources/organodron/organodron.obj");
+
+            //texture::load("resources/street/Building_V01_C.png");
+        
+            model = new ObjReader("resources/street/street.obj");
         }
         catch (const std::invalid_argument& e) {
             std::cerr << e.what();
         }
+
+        model->createModel();
 
         if (!model->hasNormals) {
             std::cout << "LIGHTS DISABLED" << std::endl;
             glDisable(GL_LIGHTING);
         }
 
+        std::string current_folder = model->path.substr(0, model->path.rfind('/') + 1);
+        for (int k = 0; k < model->mats.size(); ++k) {
+            ObjReader::node& node = model->mats[k];
+            const MtlReader::m_def mat = model->getMaterialInfo(node.material_name);
+            std::string texture_path = mat.map_Kd;
+            std::replace(texture_path.begin(), texture_path.end(), '\\', '/');
+            std::string complete_path = current_folder + texture_path;
+            if (texture_path.size() > 0) {
+                texture::precharge(current_folder, texture_path);
+            }
+        }
         timer = Timer();
         camera.newPosition(GLVector3f::GLVector3f(5, 3, 4));
         camera.lookAt(GLVector3f::GLVector3f(0, 0, 0));
