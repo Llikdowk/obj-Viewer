@@ -1,8 +1,18 @@
-#include "ObjReader.h"
 #include <regex>
+#include "ObjReader.h"
+#include "ErrorDefinitions.h"
 
-
-//typedef GLVector3f::GLVector3f vec3;
+inline bool exists_file(const std::string& name) {
+    std::ifstream f(name.c_str());
+    if (f.good()) {
+        f.close();
+        return true;
+    }
+    else {
+        f.close();
+        return false;
+    }
+}
 
 ObjReader::ObjReader(char* path) : path(path) {
 }
@@ -21,11 +31,7 @@ void ObjReader::clear() {
     normalValues.clear();
 }
 
-int ObjReader::size() {
-    return vertices.size();
-}
-
-bool loadValues(const std::vector<long> &indices, const std::vector<vec3> &values, std::vector<vec3> &out) {
+bool ObjReader::loadValues(const std::vector<long> &indices, const std::vector<vec3> &values, std::vector<vec3> &out) {
     if (values.size() > 0) {
         for (int i = 0; i < indices.size(); ++i) {
             long index = indices[i];
@@ -43,25 +49,18 @@ bool loadValues(const std::vector<long> &indices, const std::vector<vec3> &value
 void ObjReader::createModel() {
     triangularize();
     readObj();
-    loadValues(vertexIndices, vertexValues, vertices);
-    if (!loadValues(uvIndices, uvValues, uvs)) {
-        hasTexture = false;
-        std::cout << "MODEL HAS NO TEXTURE COORDINATES" << std::endl;
+    bool texture = false;
+    bool normals = false;
+    for (auto it = materials.begin(); it != materials.end(); ++it) {
+        if (texture == true && normals == true) break;
+        
+        texture = it->hasTexture || texture;
+        normals = it->hasNormals || normals;
     }
-    if (!loadValues(normalIndices, normalValues, normals)) {
-        hasNormals = false;
-        std::cout << "MODEL HAS NO NORMALS" << std::endl;
-    }
-}
-
-void fileNotFoundError(std::string path) {
-    std::string msg = "ERROR: The file " + path + " cannot be found";
-    throw std::invalid_argument(msg);
-}
-
-void parsingError(std::string s, int linenum) {
-    std::string msg = "ERROR: parsing " + s + " at line " + std::to_string(linenum);
-    throw std::invalid_argument(msg);
+    hasTexture = texture;
+    hasNormals = normals;
+    if (!texture) std::cout << "MODEL HAS NO TEXTURE COORDINATES" << std::endl;
+    if (!normals) std::cout << "MODEL HAS NO NORMALS" << std::endl;
 }
 
 void ObjReader::parse_vt(std::string line, int linenum) {
@@ -96,9 +95,10 @@ void ObjReader::triangularize() {
     std::ofstream myfile;
     std::string newFilePath = path;
     newFilePath += "trian";
+    if (exists_file(newFilePath)) {
+        return;
+    }
     myfile.open(newFilePath);
-    //myfile << "Writing this to a file.\n";
-
     int numLines = 0;
     std::ifstream in(path);
     std::string unused;
@@ -173,6 +173,18 @@ void ObjReader::triangularize() {
     std::cout << "*TRIANGULARIZATION DONE*" << std::endl;
 }
 
+void ObjReader::process_current() {
+    if (vertexIndices.size() > 0) {
+        loadValues(vertexIndices, vertexValues, materials.back().vertices);
+        materials.back().hasTexture = loadValues(uvIndices, uvValues, materials.back().uvs);
+        materials.back().hasNormals = loadValues(normalIndices, normalValues, materials.back().normals);
+
+        vertexIndices.clear();
+        uvIndices.clear();
+        normalIndices.clear();
+    }
+}
+
 void ObjReader::readObj() {
     static bool debug = false;
     std::string newPath = path;
@@ -222,7 +234,7 @@ void ObjReader::readObj() {
         }
         //f
         else if (line[0] == 'f') {
-            int vertexIndex[4], uvIndex[4], normalIndex[4];
+            int vertexIndex[3], uvIndex[3], normalIndex[3];
 
             std::string lineaux = line.substr(1, line.size());
             std::replace(lineaux.begin(), lineaux.end(), '/', ' ');
@@ -232,9 +244,6 @@ void ObjReader::readObj() {
                   >> vertexIndex[1] >> uvIndex[1] >> normalIndex[1]
                   >> vertexIndex[2] >> uvIndex[2] >> normalIndex[2]
                   ) { 
-                //if (iss >> vertexIndex[3] >> uvIndex[3] >> normalIndex[3]) {
-                //    quads = true;
-                //}
             }
             else {
                 std::string lineaux = line.substr(1, line.size());
@@ -265,18 +274,6 @@ void ObjReader::readObj() {
                         parsingError("f", linenum);
                     }
                 }
-                /*
-                if ((iss // f v1//vn1 v2//vn2 v3//vn3   OR   f v1/vt1 v2/vt2 v3/vt3
-                      >> vertexIndex[0] >> normalIndex[0]
-                      >> vertexIndex[1] >> normalIndex[1]
-                      >> vertexIndex[2] >> normalIndex[2]
-                      )
-                    ) {
-                }
-                else {
-                    parsingError("f", linenum);
-                }
-                */
             }
                
 
@@ -310,10 +307,42 @@ void ObjReader::readObj() {
             else normalIndices.push_back(vn_index + normalIndex[2]);  
         }
         else if (line.substr(0, 6) == "mtllib"){
-            mtl_path = line.substr(7, line.size());
-            //load_mtl(); //TODO
+            process_current();
+            std::string mtl_name = line.substr(7, line.size());
+            try {
+                std::string current_folder = path.substr(0, path.rfind('/')+1);
+                mtl.readMtl(current_folder + mtl_name);
+            } catch (const std::invalid_argument& e) {
+                std::cerr << e.what() << ": No materials defined" << std::endl;
+            }
+        }
+        else if (line.substr(0, 6) == "usemtl") {
+            struct node n;
+            n.material_name = line.substr(7, line.size());
+            materials.push_back(n);
         }
 
     }
-    //std::cout << "SIZES: " << vertexIndices.size() << " " << uvIndices.size() << " " << normalIndices.size() << std::endl;
+    if (materials.size() == 0) {
+        materials.push_back(node());
+    }
+    process_current();
+    // debug:
+    // std::cout << "SIZES: " << vertexIndices.size() << " " << uvIndices.size() << " " << normalIndices.size() << std::endl;
+}
+
+const MtlReader::m_def ObjReader::getMaterialInfo(MtlReader::m_name name) {
+    static bool info_shown = false;
+    MtlReader::m_def res;
+    try {
+        res = mtl.materials.at(name);
+    }
+    catch (std::out_of_range e) {
+        if (!info_shown) {
+            std::cerr << "No mtllib file found!" << std::endl;
+            info_shown = true;
+        }
+        
+    }
+    return res;
 }

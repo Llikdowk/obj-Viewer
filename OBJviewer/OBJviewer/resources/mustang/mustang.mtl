@@ -1,0 +1,5 @@
+newmtl BodyTexture_1
+Ka 0.5 0.5 0.5
+Kd 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+map_Kd BodyTexture.bmp

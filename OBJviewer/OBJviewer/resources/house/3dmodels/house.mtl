@@ -17,3 +17,5 @@ Ns  0.0
 illum 2
 #
 # EOF
+newmtl basichouse
+map_Kd Texture/HouseBody.bmp

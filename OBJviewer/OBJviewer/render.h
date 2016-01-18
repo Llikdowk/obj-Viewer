@@ -24,6 +24,7 @@ namespace render {
         ObjReader* model;
         GLuint axis;
         GLint width = 0, height = 0;
+        GLuint drawmodel_list;
     }
 
     void orthographic() {
@@ -39,7 +40,7 @@ namespace render {
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
         float ratio = (float)w / h;
-        gluPerspective(60, ratio, 0.1, 1000);
+        gluPerspective(60, ratio, 0.1, 1000000);
         glMatrixMode(GL_MODELVIEW);
     }
 
@@ -73,16 +74,44 @@ namespace render {
         //glRotatef(90, 1, 0, 0);
 
         shapes::drawGrid(16, 16, 1, color);
-
-        texture::model();
+        glScalef(.1, .1, .1);
         glMatrixMode(GL_MODELVIEW);
-        glBegin(GL_TRIANGLES);
-        for (unsigned int i = 0; i < model->size(); ++i) {
-            if (model->hasNormals) glNormal3f(model->normals[i].x, model->normals[i].y, model->normals[i].z);
-            if (model->hasTexture) glTexCoord2f(model->uvs[i].x, model->uvs[i].y);
-            glVertex3f(model->vertices[i].x, model->vertices[i].y, model->vertices[i].z);
+        std::string current_folder = model->path.substr(0, model->path.rfind('/') + 1);
+        for (int k = 0; k < model->materials.size(); ++k) {   
+            
+            ObjReader::node& node = model->materials[k];
+            MtlReader::m_def mat;
+            
+            mat = model->getMaterialInfo(node.material_name);
+                
+            GLfloat Ke[] = { mat.Ke.x, mat.Ke.y, mat.Ke.z, 1.0f };
+            GLfloat Ka[] = { mat.Ka.x, mat.Ka.y, mat.Ka.z, 1.0f };
+            GLfloat Kd[] = { mat.Kd.x, mat.Kd.y, mat.Kd.z, 1.0f };
+            GLfloat Ks[] = { mat.Ks.x, mat.Ks.y, mat.Ks.z, 1.0f };
+            std::string texture_path = mat.map_Kd;
+
+            glMaterialfv(GL_FRONT, GL_EMISSION, Ke);
+            glMaterialfv(GL_FRONT, GL_AMBIENT, Ka);
+            glMaterialfv(GL_FRONT, GL_DIFFUSE, Kd);
+            //glMaterialfv(GL_FRONT, GL_SPECULAR, Ks);
+            glColorMaterial(GL_FRONT_AND_BACK, GL_DIFFUSE);
+            glEnable(GL_COLOR_MATERIAL);
+
+            if (texture_path.size() > 0) {
+                texture::loadTexture(texture_path);                
+                //texture::loadTexture("/Maps/cty2x.jpg");
+            }
+            
+            glBegin(GL_TRIANGLES);
+            for (unsigned int i = 0; i < node.vertices.size(); ++i) {
+                if (node.hasNormals) glNormal3f(node.normals[i].x, node.normals[i].y, node.normals[i].z);
+                if (node.hasTexture) glTexCoord2f(node.uvs[i].x, node.uvs[i].y);
+                glVertex3f(node.vertices[i].x, node.vertices[i].y, node.vertices[i].z);
+            }
+            glEnd();
+            
         }
-        glEnd();
+        
         glDisable(GL_TEXTURE_2D);
         glPopMatrix();
         
@@ -109,34 +138,41 @@ namespace render {
         axis = shapes::axis();
         glEnable(GL_LIGHTING);
         lights::init();
-
-        //texture::load("resources/mercedes/mercedes.jpg"); 
-        //model = new ObjReader("resources/mercedes/clkgtr.obj"); // triangles
-
-        //texture::load("resources/delorean/Textures/grill.png");
-        //model = new ObjReader("resources/delorean/DeLorean.objtrian");
-        
-        texture::load("resources/house/Texture/HouseBody.bmp");
-        model = new ObjReader("resources/house/3dmodels/house.obj");
-
-        //texture::load("resources/organodron/Maps/cta4.jpg");
-        //model = new ObjReader("resources/organodron/organodron.obj");
-
-        //texture::load("resources/street/Building_V01_C.png");
-        //model = new ObjReader("resources/street/street.obj");
         try {
-            model->createModel();
+            //model = new ObjReader("resources/mercedes/clkgtr.obj");
+            //model = new ObjReader("resources/delorean/DeLorean.obj");
+            //model = new ObjReader("resources/house/3dmodels/house.obj");
+            //model = new ObjReader("resources/organodron/organodron.obj");
+            //model = new ObjReader("resources/street/street.obj");
+            //model = new ObjReader("resources/city/city.obj");
+            //model = new ObjReader("resources/cubus/cubus_faun_912_21.obj");
+            //model = new ObjReader("resources/dog/Zombie_Dog.obj");
+            //model = new ObjReader("resources/us_assault/us_assault.obj");
+            model = new ObjReader("resources/mustang/mustang.obj");
         }
         catch (const std::invalid_argument& e) {
             std::cerr << e.what();
         }
 
+        model->createModel();
+
         if (!model->hasNormals) {
+            std::cout << "LIGHTS DISABLED" << std::endl;
             glDisable(GL_LIGHTING);
         }
 
+        std::string current_folder = model->path.substr(0, model->path.rfind('/') + 1);
+        for (int k = 0; k < model->materials.size(); ++k) {
+            ObjReader::node& node = model->materials[k];
+            const MtlReader::m_def mat = model->getMaterialInfo(node.material_name);
+            std::string texture_path = mat.map_Kd;
+            std::string complete_path = current_folder + texture_path;
+            if (texture_path.size() > 0) {
+                texture::precharge(current_folder, texture_path);
+            }
+        }
         timer = Timer();
-        camera.newPosition(GLVector3f::GLVector3f(5, 100, 600));
+        camera.newPosition(GLVector3f::GLVector3f(5, 100, 350));
         camera.lookAt(GLVector3f::GLVector3f(0, 0, 0));
         timer.startDeltaChrono();
     }

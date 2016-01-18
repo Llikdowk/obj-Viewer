@@ -9,6 +9,9 @@ namespace lights {
     };
 
     static void init() {
+        GLfloat A[] = { 0.8, 0.8, 0.8, 1.0 };
+        glLightModelfv(GL_LIGHT_MODEL_AMBIENT, A);
+
         GLfloat Al0[] = { .5f, .5f, .5f, 1.0f };
         GLfloat Dl0[] = { .05f, .05f, .05f, 1.0f };
         GLfloat Sl0[] = { .02f, .02f, .02f, 1.0f };
@@ -31,6 +34,6 @@ namespace lights {
         glLightfv(CENITAL_LIGHT, GL_SPOT_DIRECTION, dirl1);
         glLightf(CENITAL_LIGHT, GL_SPOT_CUTOFF, 45.0f);
         glLightf(CENITAL_LIGHT, GL_SPOT_EXPONENT, 20.0f);
-        glEnable(CENITAL_LIGHT);
+        //glEnable(CENITAL_LIGHT);
     }
 }
