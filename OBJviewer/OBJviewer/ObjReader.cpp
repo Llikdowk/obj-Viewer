@@ -332,12 +332,17 @@ void ObjReader::readObj() {
 }
 
 const MtlReader::m_def ObjReader::getMaterialInfo(MtlReader::m_name name) {
+    static bool info_shown = false;
     MtlReader::m_def res;
     try {
         res = mtl.materials.at(name);
     }
     catch (std::out_of_range e) {
-        std::cerr << "No mtllib file found in *.obj file." << std::endl;
+        if (!info_shown) {
+            std::cerr << "No mtllib file found!" << std::endl;
+            info_shown = true;
+        }
+        
     }
     return res;
 }

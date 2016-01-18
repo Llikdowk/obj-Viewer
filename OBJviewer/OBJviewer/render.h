@@ -40,7 +40,7 @@ namespace render {
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
         float ratio = (float)w / h;
-        gluPerspective(60, ratio, 0.1, 1000);
+        gluPerspective(60, ratio, 0.1, 1000000);
         glMatrixMode(GL_MODELVIEW);
     }
 
@@ -74,7 +74,7 @@ namespace render {
         //glRotatef(90, 1, 0, 0);
 
         shapes::drawGrid(16, 16, 1, color);
-
+        glScalef(.1, .1, .1);
         glMatrixMode(GL_MODELVIEW);
         std::string current_folder = model->path.substr(0, model->path.rfind('/') + 1);
         for (int k = 0; k < model->materials.size(); ++k) {   
@@ -90,15 +90,16 @@ namespace render {
             GLfloat Ks[] = { mat.Ks.x, mat.Ks.y, mat.Ks.z, 1.0f };
             std::string texture_path = mat.map_Kd;
 
-            //glMaterialfv(GL_FRONT, GL_EMISSION, Ke);
+            glMaterialfv(GL_FRONT, GL_EMISSION, Ke);
             glMaterialfv(GL_FRONT, GL_AMBIENT, Ka);
             glMaterialfv(GL_FRONT, GL_DIFFUSE, Kd);
-            glMaterialfv(GL_FRONT, GL_SPECULAR, Ks);
+            //glMaterialfv(GL_FRONT, GL_SPECULAR, Ks);
             glColorMaterial(GL_FRONT_AND_BACK, GL_DIFFUSE);
             glEnable(GL_COLOR_MATERIAL);
 
             if (texture_path.size() > 0) {
-                texture::loadTexture(texture_path);
+                texture::loadTexture(texture_path);                
+                //texture::loadTexture("/Maps/cty2x.jpg");
             }
             
             glBegin(GL_TRIANGLES);
@@ -138,17 +139,16 @@ namespace render {
         glEnable(GL_LIGHTING);
         lights::init();
         try {
-            //texture::load("resources/mercedes/mercedes.jpg"); 
             //model = new ObjReader("resources/mercedes/clkgtr.obj");
-
-            //texture::load("resources/delorean/Textures/grill.png");
             //model = new ObjReader("resources/delorean/DeLorean.obj");
-        
-            //texture::load("resources/house/Texture/HouseBody.bmp");
-            model = new ObjReader("resources/house/3dmodels/house.obj"); // FIXME! it has no mtllib!!!!
-            
+            //model = new ObjReader("resources/house/3dmodels/house.obj");
             //model = new ObjReader("resources/organodron/organodron.obj");
             //model = new ObjReader("resources/street/street.obj");
+            //model = new ObjReader("resources/city/city.obj");
+            //model = new ObjReader("resources/cubus/cubus_faun_912_21.obj");
+            //model = new ObjReader("resources/dog/Zombie_Dog.obj");
+            //model = new ObjReader("resources/us_assault/us_assault.obj");
+            model = new ObjReader("resources/mustang/mustang.obj");
         }
         catch (const std::invalid_argument& e) {
             std::cerr << e.what();
@@ -172,7 +172,7 @@ namespace render {
             }
         }
         timer = Timer();
-        camera.newPosition(GLVector3f::GLVector3f(5, 50, 500));
+        camera.newPosition(GLVector3f::GLVector3f(5, 100, 350));
         camera.lookAt(GLVector3f::GLVector3f(0, 0, 0));
         timer.startDeltaChrono();
     }
