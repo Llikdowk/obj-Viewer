@@ -1,6 +1,5 @@
 #pragma once
 #include <iostream>
-#include <gl/freeglut.h>
 #include "Behaviours.h"
 
 void TypicalBehaviour::onKey(unsigned char key, int x, int y) {

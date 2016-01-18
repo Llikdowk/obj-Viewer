@@ -1,5 +1,5 @@
 #pragma once
-#include <GL\freeglut.h>
+#include <GL/glui.h>
 #include <cmath>
 
 #include "GLVector3f.h"

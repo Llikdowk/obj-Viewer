@@ -5,7 +5,7 @@
 #include <string>
 #include <sstream>
 
-#include <GL/freeglut.h>
+#include <GL/glui.h>
 #include "GLMatrixf.h"
 #include "GLVector3f.h"
 #include "Timer.h"
@@ -179,6 +179,6 @@ namespace render {
 
     void end() {
         delete model;
-        glutLeaveMainLoop();
+        //glutLeaveMainLoop();
     }
 }

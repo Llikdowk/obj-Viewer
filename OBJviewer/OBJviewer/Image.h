@@ -1,6 +1,6 @@
 #pragma once
 #include <freeimage\FreeImage.h>
-#include <GL\freeglut.h>
+#include <GL/glui.h>
 #include <GL\glext.h>
 #include <iostream>
 

@@ -1,5 +1,5 @@
 #pragma once
-#include <gl/freeglut.h>
+#include <GL/glui.h>
 
 namespace shapes {
     GLuint createGridList(int n, int m, float step, float color[3]) {

@@ -1,5 +1,5 @@
 #pragma once
-
+#include <GL/glui.h>
 class Behaviour {
 protected:
     typedef unsigned char uchar;

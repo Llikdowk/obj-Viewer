@@ -1,4 +1,3 @@
-#include <gl/freeglut.h>
 #include "Behaviours.h"
 
 namespace render {
