@@ -1,7 +1,18 @@
-#include "ObjReader.h"
 #include <regex>
+#include "ObjReader.h"
+#include "ErrorDefinitions.h"
 
-
+inline bool exists_file(const std::string& name) {
+    std::ifstream f(name.c_str());
+    if (f.good()) {
+        f.close();
+        return true;
+    }
+    else {
+        f.close();
+        return false;
+    }
+}
 //typedef GLVector3f::GLVector3f vec3;
 
 ObjReader::ObjReader(char* path) : path(path) {
@@ -54,16 +65,6 @@ void ObjReader::createModel() {
     }
 }
 
-void fileNotFoundError(std::string path) {
-    std::string msg = "ERROR: The file " + path + " cannot be found";
-    throw std::invalid_argument(msg);
-}
-
-void parsingError(std::string s, int linenum) {
-    std::string msg = "ERROR: parsing " + s + " at line " + std::to_string(linenum);
-    throw std::invalid_argument(msg);
-}
-
 void ObjReader::parse_vt(std::string line, int linenum) {
     GLVector3f::GLVector3f uv;
     line = line.substr(2, line.size());
@@ -96,9 +97,10 @@ void ObjReader::triangularize() {
     std::ofstream myfile;
     std::string newFilePath = path;
     newFilePath += "trian";
+    if (exists_file(newFilePath)) {
+        return;
+    }
     myfile.open(newFilePath);
-    //myfile << "Writing this to a file.\n";
-
     int numLines = 0;
     std::ifstream in(path);
     std::string unused;
@@ -232,9 +234,6 @@ void ObjReader::readObj() {
                   >> vertexIndex[1] >> uvIndex[1] >> normalIndex[1]
                   >> vertexIndex[2] >> uvIndex[2] >> normalIndex[2]
                   ) { 
-                //if (iss >> vertexIndex[3] >> uvIndex[3] >> normalIndex[3]) {
-                //    quads = true;
-                //}
             }
             else {
                 std::string lineaux = line.substr(1, line.size());
@@ -265,18 +264,6 @@ void ObjReader::readObj() {
                         parsingError("f", linenum);
                     }
                 }
-                /*
-                if ((iss // f v1//vn1 v2//vn2 v3//vn3   OR   f v1/vt1 v2/vt2 v3/vt3
-                      >> vertexIndex[0] >> normalIndex[0]
-                      >> vertexIndex[1] >> normalIndex[1]
-                      >> vertexIndex[2] >> normalIndex[2]
-                      )
-                    ) {
-                }
-                else {
-                    parsingError("f", linenum);
-                }
-                */
             }
                
 
@@ -310,8 +297,13 @@ void ObjReader::readObj() {
             else normalIndices.push_back(vn_index + normalIndex[2]);  
         }
         else if (line.substr(0, 6) == "mtllib"){
-            mtl_path = line.substr(7, line.size());
-            //load_mtl(); //TODO
+            std::string mtl_name = line.substr(7, line.size());
+            try {
+                std::string current_folder = path.substr(0, path.rfind('/')+1);
+                mtl.readMtl(current_folder + mtl_name);
+            } catch (const std::invalid_argument& e) {
+                std::cerr << e.what() << ": No materials defined" << std::endl;
+            }
         }
 
     }

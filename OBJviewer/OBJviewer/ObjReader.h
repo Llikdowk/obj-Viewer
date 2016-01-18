@@ -7,6 +7,7 @@
 #include <iostream>
 
 #include "GLVector3f.h"
+#include "MtlReader.h"
 
 class ObjReader {
     
@@ -21,17 +22,16 @@ public:
     std::vector<vec3> uvs; // preferred: Vec2
     std::vector<vec3> normals;
 
-    std::string mtl_path;
     bool quads = false;
     bool hasNormals = true;
     bool hasTexture = true;
 
 private:
-
+    MtlReader mtl;
     std::vector< long > vertexIndices, uvIndices, normalIndices;
     std::vector< vec3 > vertexValues, uvValues, normalValues;
 
-    char* path;
+    std::string path;
     void readObj();
     void clear();
 
@@ -41,8 +41,4 @@ private:
     void parse_f(std::string line, int linenum);
 
     void triangularize();
-
-    //falta: leer quads
-    //falta: leer v//vn
-    //falta: identificar grupos (es necesario?)
 };

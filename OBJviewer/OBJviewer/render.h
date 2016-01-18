@@ -110,14 +110,14 @@ namespace render {
         glEnable(GL_LIGHTING);
         lights::init();
 
-        //texture::load("resources/mercedes/mercedes.jpg"); 
-        //model = new ObjReader("resources/mercedes/clkgtr.obj"); // triangles
+        texture::load("resources/mercedes/mercedes.jpg"); 
+        model = new ObjReader("resources/mercedes/clkgtr.obj");
 
         //texture::load("resources/delorean/Textures/grill.png");
         //model = new ObjReader("resources/delorean/DeLorean.objtrian");
         
-        texture::load("resources/house/Texture/HouseBody.bmp");
-        model = new ObjReader("resources/house/3dmodels/house.obj");
+        //texture::load("resources/house/Texture/HouseBody.bmp");
+        //model = new ObjReader("resources/house/3dmodels/house.obj");
 
         //texture::load("resources/organodron/Maps/cta4.jpg");
         //model = new ObjReader("resources/organodron/organodron.obj");
@@ -136,7 +136,7 @@ namespace render {
         }
 
         timer = Timer();
-        camera.newPosition(GLVector3f::GLVector3f(5, 100, 600));
+        camera.newPosition(GLVector3f::GLVector3f(5, 5, 10));
         camera.lookAt(GLVector3f::GLVector3f(0, 0, 0));
         timer.startDeltaChrono();
     }
