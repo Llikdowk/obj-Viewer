@@ -30,6 +30,7 @@ public:
     std::vector<node> mats;
     bool hasNormals = true;
     bool hasTexture = true;
+    std::string path;
 
 
 private:
@@ -38,7 +39,6 @@ private:
     std::vector< long > vertexIndices, uvIndices, normalIndices;
     std::vector< vec3 > vertexValues, uvValues, normalValues;
 
-    std::string path;
     void readObj();
     void clear();
 

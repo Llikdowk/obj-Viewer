@@ -29,13 +29,14 @@ namespace texture {
         glLightModeli(GL_LIGHT_MODEL_COLOR_CONTROL, GL_SEPARATE_SPECULAR_COLOR);
     }
 
-    static void defineTexture(char* path, GLuint& texture) {
+    static void defineTexture(std::string path, GLuint& texture) {
         glGenTextures(1, &texture);
         glBindTexture(GL_TEXTURE_2D, texture);
-        img::loadImageFile(path);
+        char *cstr = &path[0u];
+        img::loadImageFile(cstr);
     }
 
-    static void load(char* path) {
+    static void load(std::string path) {
         defineTexture(path, model_texture);
         registerTexture(model_texture);
     }

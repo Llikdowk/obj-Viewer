@@ -74,10 +74,33 @@ namespace render {
 
         shapes::drawGrid(16, 16, 1, color);
 
-        texture::model();
+        //texture::model();
+        std::string current_folder = model->path.substr(0, model->path.rfind('/') + 1);
         glMatrixMode(GL_MODELVIEW);
         for (int k = 0; k < model->mats.size(); ++k) {
             ObjReader::node& node = model->mats[k];
+            const MtlReader::m_def mat = model->getMaterialInfo(node.material_name);
+            
+            GLfloat Ke[] = { mat.Ke.x, mat.Ke.y, mat.Ke.z, 1.0f };
+            GLfloat Ka[] = { mat.Ka.x, mat.Ka.y, mat.Ka.z, 1.0f };
+            GLfloat Kd[] = { mat.Kd.x, mat.Kd.y, mat.Kd.z, 1.0f };
+            GLfloat Ks[] = { mat.Ks.x, mat.Ks.y, mat.Ks.z, 1.0f };
+            std::string texture_path = mat.map_Kd;
+
+            //glMaterialfv(GL_FRONT, GL_EMISSION, Ke);
+            glMaterialfv(GL_FRONT, GL_AMBIENT, Ka);
+            glMaterialfv(GL_FRONT, GL_DIFFUSE, Kd);
+            glMaterialfv(GL_FRONT, GL_SPECULAR, Ks);
+            glColorMaterial(GL_FRONT_AND_BACK, GL_DIFFUSE);
+            glEnable(GL_COLOR_MATERIAL);
+            
+            if (texture_path.size() > 0) {
+                std::replace(texture_path.begin(), texture_path.end(), '\\', '/');
+                std::string complete_path = current_folder + texture_path;
+                texture::load(complete_path);
+                texture::model();
+            }
+            
             glBegin(GL_TRIANGLES);
             for (unsigned int i = 0; i < node.vertices.size(); ++i) {
                 if (node.hasNormals) glNormal3f(node.normals[i].x, node.normals[i].y, node.normals[i].z);
@@ -115,7 +138,7 @@ namespace render {
         lights::init();
 
         //texture::load("resources/mercedes/mercedes.jpg"); 
-        model = new ObjReader("resources/mercedes/clkgtr.obj");
+        //model = new ObjReader("resources/mercedes/clkgtr.obj");
 
         //texture::load("resources/delorean/Textures/grill.png");
         //model = new ObjReader("resources/delorean/DeLorean.objtrian");
@@ -127,7 +150,7 @@ namespace render {
         //model = new ObjReader("resources/organodron/organodron.obj");
 
         //texture::load("resources/street/Building_V01_C.png");
-        //model = new ObjReader("resources/street/street.obj");
+        model = new ObjReader("resources/street/street.obj");
         try {
             model->createModel();
         }
@@ -136,6 +159,7 @@ namespace render {
         }
 
         if (!model->hasNormals) {
+            std::cout << "LIGHTS DISABLED" << std::endl;
             glDisable(GL_LIGHTING);
         }
 
