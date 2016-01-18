@@ -27,7 +27,7 @@ public:
     void changeModel(char* path);
 
     const MtlReader::m_def getMaterialInfo(MtlReader::m_name);
-    std::vector<node> mats;
+    std::vector<node> materials;
     bool hasNormals = true;
     bool hasTexture = true;
     std::string path;

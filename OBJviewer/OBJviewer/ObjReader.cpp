@@ -51,7 +51,7 @@ void ObjReader::createModel() {
     readObj();
     bool texture = false;
     bool normals = false;
-    for (auto it = mats.begin(); it != mats.end(); ++it) {
+    for (auto it = materials.begin(); it != materials.end(); ++it) {
         if (texture == true && normals == true) break;
         
         texture = it->hasTexture || texture;
@@ -175,9 +175,9 @@ void ObjReader::triangularize() {
 
 void ObjReader::process_current() {
     if (vertexIndices.size() > 0) {
-        loadValues(vertexIndices, vertexValues, mats.back().vertices);
-        mats.back().hasTexture = loadValues(uvIndices, uvValues, mats.back().uvs);
-        mats.back().hasNormals = loadValues(normalIndices, normalValues, mats.back().normals);
+        loadValues(vertexIndices, vertexValues, materials.back().vertices);
+        materials.back().hasTexture = loadValues(uvIndices, uvValues, materials.back().uvs);
+        materials.back().hasNormals = loadValues(normalIndices, normalValues, materials.back().normals);
 
         vertexIndices.clear();
         uvIndices.clear();
@@ -319,9 +319,12 @@ void ObjReader::readObj() {
         else if (line.substr(0, 6) == "usemtl") {
             struct node n;
             n.material_name = line.substr(7, line.size());
-            mats.push_back(n);
+            materials.push_back(n);
         }
 
+    }
+    if (materials.size() == 0) {
+        materials.push_back(node());
     }
     process_current();
     // debug:
@@ -329,11 +332,12 @@ void ObjReader::readObj() {
 }
 
 const MtlReader::m_def ObjReader::getMaterialInfo(MtlReader::m_name name) {
-    //std::cout << name << std::endl;
-    //std::cout << mtl.materials.size() << std::endl;
-
     MtlReader::m_def res;
-    res = mtl.materials.at(name);
-    
+    try {
+        res = mtl.materials.at(name);
+    }
+    catch (std::out_of_range e) {
+        std::cerr << "No mtllib file found in *.obj file." << std::endl;
+    }
     return res;
 }

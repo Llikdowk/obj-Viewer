@@ -2,6 +2,9 @@
 #
 # object Gost_House_(www.3dislands.blogspot.com) to come ...
 #
+
+mtllib house.mtl
+
 v  -143.230408 -52.788918 132.249023
 v  -143.230408 -52.788910 -87.640869
 v  166.033234 -52.788918 -87.640869
@@ -15782,6 +15785,7 @@ vn  -0.999998 0.000000 0.001948
 # 3663 vertex normals
 
 g Gost_House_(www.3dislands.blogspot.com)
+usemtl basichouse
 s 2
 f 3/3/3 4/4/4 1/1/1
 f 1/1/1 2/2/2 3/3/3

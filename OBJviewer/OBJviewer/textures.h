@@ -20,7 +20,12 @@ namespace texture {
 
     static void loadTexture(std::string path) {
         glEnable(GL_TEXTURE_2D);
-        glBindTexture(GL_TEXTURE_2D, textures.at(path));
+        try {
+            glBindTexture(GL_TEXTURE_2D, textures.at(path));
+        }
+        catch (std::out_of_range e) {
+            std::cerr << e.what() << ": Texture not found" << std::endl;
+        }
         typicalSettings();
         glLightModeli(GL_LIGHT_MODEL_COLOR_CONTROL, GL_SEPARATE_SPECULAR_COLOR);
     }
