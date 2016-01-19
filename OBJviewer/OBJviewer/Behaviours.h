@@ -1,5 +1,7 @@
 #pragma once
 #include <GL/glui.h>
+#include "render.h"
+
 class Behaviour {
 protected:
     typedef unsigned char uchar;
@@ -28,8 +30,13 @@ public:
 class TypicalBehaviour : public Behaviour {
 public:
     virtual void onKey(unsigned char key, int x, int y);
+	virtual void onMouse(int button, int state, int x, int y);
+	virtual void onMotion(int x, int y);
+	virtual void onPassiveMotion(int x, int y);
 private:
-    bool wireframe = false;
+	Render& render = Render::getInstance();
+	bool isMouseButton2Pressed = false;
+	int mouseX, mouseY;
 };
 
 class ExtendedBehaviour : public TypicalBehaviour {

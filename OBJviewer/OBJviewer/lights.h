@@ -3,21 +3,23 @@
 
 namespace lights {
 
-	// GLUI Live Variable Lighting
-	int   light2_enabled = 0;
-	float light2_intensity = 1.0;
+	namespace {
+		// GLUI Live Variable Lighting
+		int   light2_enabled = 0;
+		float light2_intensity = 1.0;
 
-	GLfloat light2_ambient[] = { 0.0f, 0.0f, 0.0f, 1.0f };
-	GLfloat light2_diffuse[] = { .6f, .6f, 1.0f, 1.0f };
-	GLfloat light2_position[] = { .5f, .5f, 1.0f, 0.0f };
+		GLfloat light2_ambient[] = { 0.0f, 0.0f, 0.0f, 1.0f };
+		GLfloat light2_diffuse[] = { .6f, .6f, 1.0f, 1.0f };
+		GLfloat light2_position[] = { .5f, .5f, 1.0f, 0.0f };
 
 
-	int   light3_enabled = 0;
-	float light3_intensity = .4;
+		int   light3_enabled = 0;
+		float light3_intensity = .4;
 
-	GLfloat light3_ambient[] = { 0.0f, 0.0f, 0.0f, 1.0f };
-	GLfloat light3_diffuse[] = { .9f, .6f, 0.0f, 1.0f };
-	GLfloat light3_position[] = { -1.0f, -1.0f, 1.0f, 0.0f };
+		GLfloat light3_ambient[] = { 0.0f, 0.0f, 0.0f, 1.0f };
+		GLfloat light3_diffuse[] = { .9f, .6f, 0.0f, 1.0f };
+		GLfloat light3_position[] = { -1.0f, -1.0f, 1.0f, 0.0f };
+	}
 
     static enum lights {
         AMBIENT_LIGHT = GL_LIGHT0,
@@ -64,7 +66,7 @@ namespace lights {
 		glLightfv(USER_LIGHT2, GL_POSITION, light3_position);
     }
 
-	void enableLighting() {
+	static void enableLighting() {
 		GLfloat A[] = { 0.05, 0.05, 0.05, 1.0 };
 		glLightModelfv(GL_LIGHT_MODEL_AMBIENT, A);
 
@@ -86,7 +88,7 @@ namespace lights {
 		}
 	}
 
-	void disableLighting() {
+	static void disableLighting() {
 		GLfloat A[] = { 0.3, 0.3, 0.3, 1.0 };
 		glLightModelfv(GL_LIGHT_MODEL_AMBIENT, A);
 

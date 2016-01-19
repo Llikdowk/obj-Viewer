@@ -1,13 +1,6 @@
 #include "Behaviours.h"
 
-namespace render {
-    void end();
-}
-void Behaviour::onKey(uchar key, int x, int y) {
-    if (key == 27) {
-        render::end();
-    }
-};
+void Behaviour::onKey(uchar key, int x, int y) {};
 void Behaviour::onKeyUp(uchar key, int x, int y) {};
 void Behaviour::onSpecialKey(int specialKey, int x, int y) {};
 void Behaviour::onSpecialKeyUp(int specialKey, int x, int y) {};

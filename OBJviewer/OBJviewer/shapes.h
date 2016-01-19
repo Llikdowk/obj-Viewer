@@ -2,7 +2,7 @@
 #include <GL/glui.h>
 
 namespace shapes {
-    GLuint createGridList(int n, int m, float step, float color[3]) {
+    static GLuint createGridList(int n, int m, float step, float color[3]) {
         GLuint gridlist;
         gridlist = glGenLists(1);
         glNewList(gridlist, GL_COMPILE);
@@ -28,7 +28,7 @@ namespace shapes {
         return gridlist;
     }
 
-    void drawGrid(int n, int m, float step, float color[3]) {
+    static void drawGrid(int n, int m, float step, float color[3]) {
         static GLuint gridlist = -1;
 
 		glPushAttrib(GL_CURRENT_BIT | GL_LINE_BIT | GL_ENABLE_BIT);
@@ -41,7 +41,7 @@ namespace shapes {
 		glPopAttrib();
     }
 
-    GLuint axis() {
+    static GLuint axis() {
         GLuint draw_list = glGenLists(1);
         glNewList(draw_list, GL_COMPILE);
         glPushAttrib(GL_CURRENT_BIT | GL_LINE_BIT | GL_ENABLE_BIT);

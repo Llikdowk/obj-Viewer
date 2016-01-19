@@ -1,6 +1,7 @@
-#include <Windows.h>
 #include "render.h"
+#include "InputHandler.h"
 
+Render& render = Render::getInstance();
 
 GLUI_Spinner     *light2_Intensity, *light2_X, *light2_Y, *light2_Z;
 GLUI_Scrollbar   *light2_R, *light2_G, *light2_B;
@@ -10,6 +11,7 @@ GLUI_Scrollbar   *light3_R, *light3_G, *light3_B;
 GLUI_FileBrowser *fileBrowser;
 GLUI_StaticText  *vertexText, *polygonText;
 
+GLUI_Spinner     *cameraX, *cameraY, *cameraZ;
 
 // CALLBACK IDS
 #define LIGHT2_ENABLED_ID    200
@@ -22,18 +24,9 @@ GLUI_StaticText  *vertexText, *polygonText;
 
 #define OPENFILE_ID          999
 
-
-
 void control_cb(int control) {
 	if (control == OPENFILE_ID) {
-		TCHAR NPath[MAX_PATH];
-		GetCurrentDirectory(MAX_PATH, NPath);
-		std::wstring s = NPath;
-		char path[MAX_PATH];
-		size_t x;
-		wcstombs_s(&x, path, MAX_PATH, s.c_str(), MAX_PATH);
-		//::cout << path << "\\" << fileBrowser->get_file() << std::endl;
-		render::loadModel(path, fileBrowser->get_file());
+		render.loadModel(fileBrowser->get_file());
 	}
 	else if (control == LIGHT2_ENABLED_ID) {
 		if (lights::light2_enabled) {
@@ -109,12 +102,16 @@ void control_cb(int control) {
 	}
 }
 
+void changeRenderingMode(int control) {
+	render.changeRenderingMode(control);
+}
+
 void buildGUI() {
 	printf("GLUI version: %3.2f\n", GLUI_Master.get_version());
 
 	// Status bar 
 	{
-		GLUI *statusBar = GLUI_Master.create_glui_subwindow(render::main_window, GLUI_SUBWINDOW_BOTTOM);
+		GLUI *statusBar = GLUI_Master.create_glui_subwindow(render.main_window, GLUI_SUBWINDOW_BOTTOM);
 		vertexText = statusBar->add_statictext("");
 		vertexText->set_text("Vertex: 0");
 
@@ -125,29 +122,29 @@ void buildGUI() {
 
 	// Side subwindow
 	{
-		GLUI *rightSubwindow = GLUI_Master.create_glui_subwindow(render::main_window, GLUI_SUBWINDOW_RIGHT);
-		rightSubwindow->set_main_gfx_window(render::main_window);
+		GLUI *rightSubwindow = GLUI_Master.create_glui_subwindow(render.main_window, GLUI_SUBWINDOW_RIGHT);
+		rightSubwindow->set_main_gfx_window(render.main_window);
 
 		// File Browser
 		{
-			//fileBrowser = new GLUI_FileBrowser(rightSubwindow, "File Browser", GLUI_PANEL_EMBOSSED, OPENFILE_ID, control_cb);
-			//fileBrowser->set_allow_change_dir(true);
+			fileBrowser = new GLUI_FileBrowser(rightSubwindow, "File Browser", GLUI_PANEL_EMBOSSED, OPENFILE_ID, control_cb);
+			fileBrowser->set_allow_change_dir(true);
 		}
 
 		// Rendering Options
 		{
 			GLUI_Panel *obj_panel = new GLUI_Panel(rightSubwindow, "Rendering");
 
-			new GLUI_Checkbox(obj_panel, "Wireframe                         ", &render::wireframe, WIREFRAME_MODE, render::changeRenderingMode);
-			new GLUI_Checkbox(obj_panel, "Textures", &render::textures, TEXTURE_MODE, render::changeRenderingMode);
-			new GLUI_Checkbox(obj_panel, "Gizmo", &render::gizmo, -1, control_cb);
-			new GLUI_Checkbox(obj_panel, "Grid", &render::grid, -1, control_cb);
+			new GLUI_Checkbox(obj_panel, "Wireframe                         ", &render.wireframe, WIREFRAME_MODE, changeRenderingMode);
+			new GLUI_Checkbox(obj_panel, "Textures", &render.textures, TEXTURE_MODE, changeRenderingMode);
+			new GLUI_Checkbox(obj_panel, "Gizmo", &render.gizmo, -1, control_cb);
+			new GLUI_Checkbox(obj_panel, "Grid", &render.grid, -1, control_cb);
 		}
 
 		// Lights
 		{
 			GLUI_Panel *roll_lights = new GLUI_Panel(rightSubwindow, "Lights");
-			new GLUI_Checkbox(roll_lights, "Lighting", &render::lighting, LIGHTING_MODE, render::changeRenderingMode);
+			new GLUI_Checkbox(roll_lights, "Lighting", &render.lighting, LIGHTING_MODE, changeRenderingMode);
 
 			// Light0
 			GLUI_Rollout *light0 = new GLUI_Rollout(roll_lights, "Light 1");
@@ -202,28 +199,41 @@ void buildGUI() {
 
 	// Camera Controls
 	{
-		GLUI *glui2 = GLUI_Master.create_glui_subwindow(render::main_window, GLUI_SUBWINDOW_BOTTOM);
-		glui2->set_main_gfx_window(render::main_window);
+		GLUI *glui2 = GLUI_Master.create_glui_subwindow(render.main_window, GLUI_SUBWINDOW_BOTTOM);
+		glui2->set_main_gfx_window(render.main_window);
 
 		GLUI_Panel *cameraMovement = new GLUI_Panel(glui2, "Camera Movement");
-		/*GLUI_Translation *trans_xy = new GLUI_Translation(cameraMovement, "Objects XY", GLUI_TRANSLATION_XY, obj_pos);
-		trans_xy->set_speed(.005);
+
 		new GLUI_Column(cameraMovement, false);
-		GLUI_Translation *trans_x = new GLUI_Translation(cameraMovement, "Objects X", GLUI_TRANSLATION_X, obj_pos);
-		trans_x->set_speed(.005);
+		cameraX = new GLUI_Spinner(cameraMovement, "Camera X:", &render.camera.position.x, -1, control_cb);
+
 		new GLUI_Column(cameraMovement, false);
-		GLUI_Translation *trans_y = new GLUI_Translation(cameraMovement, "Objects Y", GLUI_TRANSLATION_Y, &obj_pos[1]);
-		trans_y->set_speed(.005);
+		cameraY = new GLUI_Spinner(cameraMovement, "Camera Y:", &render.camera.position.y, -1, control_cb);
+
 		new GLUI_Column(cameraMovement, false);
-		GLUI_Translation *trans_z = new GLUI_Translation(cameraMovement, "Objects Z", GLUI_TRANSLATION_Z, &obj_pos[2]);
-		trans_z->set_speed(.005);*/
+		cameraZ = new GLUI_Spinner(cameraMovement, "Camera Z:", &render.camera.position.z, -1, control_cb);
+
 	}
+}
+
+void display() {
+	cameraX->set_float_val(render.camera.position.x);
+	cameraY->set_float_val(render.camera.position.y);
+	cameraZ->set_float_val(render.camera.position.z);
+	render.display();
+}
+
+void reshape(int w, int h) {
+	render.reshape(w, h);
 }
 
 int main(int argc, char** argv) {
 
 	glutInit(&argc, argv);
-	render::init();
+	render.init();
+
+	glutDisplayFunc(display);
+	GLUI_Master.set_glutReshapeFunc(reshape);
 
 	InputHandler& input = InputHandler::getInstance();
     input.setBehaviour(new TypicalBehaviour());
