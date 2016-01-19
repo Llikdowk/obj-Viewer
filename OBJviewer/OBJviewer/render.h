@@ -18,6 +18,40 @@
 #include "lights.h"
 
 namespace render {
+	int   main_window;
+	int vertexCount, polygonCount;
+
+	
+
+	// GLUI Live Variables
+
+	// Rendering Modes
+	int   wireframe = 0;
+	int   textures = 1;
+	int   lighting = 1;
+
+	// Lighting
+	int   light2_enabled = 1;
+	float light2_intensity = 1.0;
+	float light2_X = 0.0;
+	float light2_Y = 0.0;
+	float light2_Z = 0.0;
+
+	GLfloat light2_ambient[] = { 0.1f, 0.1f, 0.3f, 1.0f };
+	GLfloat light2_diffuse[] = { .6f, .6f, 1.0f, 1.0f };
+	GLfloat light2_position[] = { .5f, .5f, 1.0f, 0.0f };
+
+
+	int   light3_enabled = 1;
+	float light3_intensity = .4;
+	float light3_X = 0.0;
+	float light3_Y = 0.0;
+	float light3_Z = 0.0;
+
+	GLfloat light3_ambient[] = { 0.1f, 0.1f, 0.3f, 1.0f };
+	GLfloat light3_diffuse[] = { .9f, .6f, 0.0f, 1.0f };
+	GLfloat light3_position[] = { -1.0f, -1.0f, 1.0f, 0.0f };
+
     namespace {
         Timer timer;
         Camera camera;
@@ -26,6 +60,10 @@ namespace render {
         GLint width = 0, height = 0;
         GLuint drawmodel_list;
     }
+
+	void loadModel(char* directory, char* name) {
+
+	}
 
     void orthographic() {
         glMatrixMode(GL_PROJECTION);
@@ -121,23 +159,31 @@ namespace render {
     }
 
     void reshape(GLint w, GLint h) {
-        glViewport(0, 0, w, h);
+		int tx, ty, tw, th;
+		GLUI_Master.get_viewport_area(&tx, &ty, &tw, &th);
+		glViewport(tx, ty, tw, th);
+
         perspective(w, h);
     }
 
     void init() {
         glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH | GLUT_MULTISAMPLE);
-        glutInitWindowSize(800, 600);
-        glutCreateWindow("Object viewer");
+		glutInitWindowPosition(0, 0);
+		glutInitWindowSize(1280, 768);
+        main_window = glutCreateWindow("Object viewer");
 
         glutDisplayFunc(display);
-        glutReshapeFunc(reshape);
+		GLUI_Master.set_glutReshapeFunc(reshape);
+
+		glEnable(GL_LIGHTING);
+		glEnable(GL_NORMALIZE);
+
+		lights::init();
+
         glEnable(GL_DEPTH_TEST);
         glClearColor(.1f, .1f, .1f, 1.0);
         
         axis = shapes::axis();
-        glEnable(GL_LIGHTING);
-        lights::init();
         try {
             //model = new ObjReader("resources/mercedes/clkgtr.obj");
             //model = new ObjReader("resources/delorean/DeLorean.obj");

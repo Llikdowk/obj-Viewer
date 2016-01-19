@@ -2,12 +2,17 @@
 #include "InputHandler.h"
 
 InputHandler::InputHandler() : behaviour(new Behaviour()) {
-	glutKeyboardFunc(InputHandler::GLCallbackOnKey);
-	glutKeyboardUpFunc(InputHandler::GLCallbackOnKeyUp);
-	glutSpecialFunc(InputHandler::GLCallbackOnSpecialKey);
-	glutSpecialUpFunc(InputHandler::GLCallbackOnSpecialKeyUp);
-	glutMouseFunc(InputHandler::GLCallbackOnMouse);
+	GLUI_Master.set_glutKeyboardFunc(InputHandler::GLCallbackOnKey);
+	GLUI_Master.set_glutSpecialFunc(InputHandler::GLCallbackOnSpecialKey);
+	GLUI_Master.set_glutMouseFunc(InputHandler::GLCallbackOnMouse);
 	glutMotionFunc(InputHandler::GLCallbackOnMotion);
+
+	//glutKeyboardFunc(InputHandler::GLCallbackOnKey);
+	glutKeyboardUpFunc(InputHandler::GLCallbackOnKeyUp);
+	//glutSpecialFunc(InputHandler::GLCallbackOnSpecialKey);
+	glutSpecialUpFunc(InputHandler::GLCallbackOnSpecialKeyUp);
+	//glutMouseFunc(InputHandler::GLCallbackOnMouse);
+	//glutMotionFunc(InputHandler::GLCallbackOnMotion);
 	glutPassiveMotionFunc(InputHandler::GLCallbackOnPassiveMotion);
 }
 

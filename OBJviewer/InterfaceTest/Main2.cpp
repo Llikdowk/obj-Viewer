@@ -193,11 +193,6 @@ void myGlutKeyboard(unsigned char Key, int x, int y)
 
 /***************************************** myGlutMenu() ***********/
 
-void myGlutMenu(int value)
-{
-	myGlutKeyboard(value, 0, 0);
-}
-
 
 /***************************************** myGlutIdle() ***********/
 
