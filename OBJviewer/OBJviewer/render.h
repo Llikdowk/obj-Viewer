@@ -56,13 +56,12 @@ public:
 	GLint width = 0, height = 0;
 	GLuint drawmodel_list;
 
+	float cameraMovement = 0;
+	float cameraPan = 0;
+
 	void loadModel(const char* name);
 
 	void changeRenderingMode(int mode);
-
-	void panCamera(float speed);
-
-	void moveCamera(float speed);
 
 	void orthographic();
 

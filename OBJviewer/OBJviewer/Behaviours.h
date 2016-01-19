@@ -30,6 +30,7 @@ public:
 class TypicalBehaviour : public Behaviour {
 public:
     virtual void onKey(unsigned char key, int x, int y);
+	virtual void onKeyUp(uchar key, int x, int y);
 	virtual void onMouse(int button, int state, int x, int y);
 	virtual void onMotion(int x, int y);
 	virtual void onPassiveMotion(int x, int y);

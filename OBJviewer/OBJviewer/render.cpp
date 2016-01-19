@@ -62,16 +62,6 @@ void Render::changeRenderingMode(int mode) {
 	}
 }
 
-void Render::panCamera(float speed) {
-	camera.pan(speed * timer.getDeltaTime());
-}
-
-void Render::moveCamera(float speed) {
-	std::cout << camera.position.x << ", " << camera.position.y << ", " << camera.position.z << std::endl;
-	camera.moveForward(speed * timer.getDeltaTime());
-	std::cout << camera.position.x << ", " << camera.position.y << ", " << camera.position.z << std::endl;
-}
-
 void Render::orthographic() {
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
@@ -112,6 +102,8 @@ void Render::display() {
 	camera.lookAt(GLVector3f::GLVector3f(0.0, 0.0, 0.0));*/
 
 	//std::cout << camera.position.x << ", " << camera.position.y << ", " << camera.position.z << std::endl;
+	camera.pan(cameraPan * timer.getDeltaTime());
+	camera.moveForward(cameraMovement * timer.getDeltaTime());
 	camera.update();
 
 	// Light positioning
