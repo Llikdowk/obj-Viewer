@@ -194,9 +194,10 @@ void ObjReader::readObj() {
     if (!file) fileNotFoundError(path);
 
     unsigned int linenum = 0;
-    unsigned long v_index = 1;
-    unsigned long vt_index = 1;
-    unsigned long vn_index = 1;
+    v_index = 1;
+    vt_index = 1;
+    vn_index = 1;
+    f_index = 1;
 
     std::string line;
     while (std::getline(file, line)) {
@@ -305,6 +306,8 @@ void ObjReader::readObj() {
 
             if (normalIndex[2] >= 0) normalIndices.push_back(normalIndex[2]);
             else normalIndices.push_back(vn_index + normalIndex[2]);  
+        
+            ++f_index;
         }
         else if (line.substr(0, 6) == "mtllib"){
             process_current();

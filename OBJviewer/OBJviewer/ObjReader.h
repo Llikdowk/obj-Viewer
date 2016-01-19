@@ -32,6 +32,11 @@ public:
     bool hasTexture = true;
     std::string path;
 
+    unsigned long v_index;
+    unsigned long vt_index;
+    unsigned long vn_index;
+    unsigned long f_index;
+
 
 private:
     MtlReader mtl;
