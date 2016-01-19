@@ -51,7 +51,7 @@ public:
 
 	Timer timer;
 
-	ObjReader* model;
+	ObjReader* model = nullptr;
 	GLuint axis;
 	GLint width = 0, height = 0;
 	GLuint drawmodel_list;

@@ -5,6 +5,7 @@ void Render::loadModel(const char* name) {
 	char *cstr = &n[0u];
 	
 	try {
+        delete model;
 		model = new ObjReader(cstr);
 	}
 	catch (const std::invalid_argument& e) {
@@ -134,46 +135,45 @@ void Render::display() {
 	}
 
 	//glScalef(.1, .1, .1);
-	glMatrixMode(GL_MODELVIEW);
-	std::string current_folder = model->path.substr(0, model->path.rfind('/') + 1);
-	for (int k = 0; k < model->materials.size(); ++k) {
+    if (model != nullptr) {
+        glMatrixMode(GL_MODELVIEW);
+        std::string current_folder = model->path.substr(0, model->path.rfind('/') + 1);
+        for (int k = 0; k < model->materials.size(); ++k) {
 
-		ObjReader::node& node = model->materials[k];
-		MtlReader::m_def mat;
+            ObjReader::node& node = model->materials[k];
+            MtlReader::m_def mat;
 
-		mat = model->getMaterialInfo(node.material_name);
+            mat = model->getMaterialInfo(node.material_name);
 
-		GLfloat Ke[] = { mat.Ke.x, mat.Ke.y, mat.Ke.z, 1.0f };
-		GLfloat Ka[] = { mat.Ka.x, mat.Ka.y, mat.Ka.z, 1.0f };
-		GLfloat Kd[] = { mat.Kd.x, mat.Kd.y, mat.Kd.z, 1.0f };
-		GLfloat Ks[] = { mat.Ks.x, mat.Ks.y, mat.Ks.z, 1.0f };
-		std::string texture_path = mat.map_Kd;
+            GLfloat Ke[] = { mat.Ke.x, mat.Ke.y, mat.Ke.z, 1.0f };
+            GLfloat Ka[] = { mat.Ka.x, mat.Ka.y, mat.Ka.z, 1.0f };
+            GLfloat Kd[] = { mat.Kd.x, mat.Kd.y, mat.Kd.z, 1.0f };
+            GLfloat Ks[] = { mat.Ks.x, mat.Ks.y, mat.Ks.z, 1.0f };
+            std::string texture_path = mat.map_Kd;
 
-		glMaterialfv(GL_FRONT, GL_EMISSION, Ke);
-		glMaterialfv(GL_FRONT, GL_AMBIENT, Ka);
-		glMaterialfv(GL_FRONT, GL_DIFFUSE, Kd);
-		//glMaterialfv(GL_FRONT, GL_SPECULAR, Ks);
-		glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
-		glEnable(GL_COLOR_MATERIAL);
+            glMaterialfv(GL_FRONT, GL_EMISSION, Ke);
+            glMaterialfv(GL_FRONT, GL_AMBIENT, Ka);
+            glMaterialfv(GL_FRONT, GL_DIFFUSE, Kd);
+            //glMaterialfv(GL_FRONT, GL_SPECULAR, Ks);
+            glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+            glEnable(GL_COLOR_MATERIAL);
 
-		/*if (texture_path.size() > 0) {
-		//texture::loadTexture(texture_path);
-		//texture::loadTexture("/Maps/cty2x.jpg");
-		}*/
-		//glDisable(GL_LIGHTING);
-		glColor3f(1.0, 1.0, 1.0);
-		glBegin(GL_TRIANGLES);
-		for (unsigned int i = 0; i < node.vertices.size(); ++i) {
-			if (node.hasNormals) glNormal3f(node.normals[i].x, node.normals[i].y, node.normals[i].z);
-			if (node.hasTexture) glTexCoord2f(node.uvs[i].x, node.uvs[i].y);
-			glVertex3f(node.vertices[i].x, node.vertices[i].y, node.vertices[i].z);
-		}
-		glEnd();
-
-	}
-
-	glPopMatrix();
-
+            /*if (texture_path.size() > 0) {
+            //texture::loadTexture(texture_path);
+            //texture::loadTexture("/Maps/cty2x.jpg");
+            }*/
+            //glDisable(GL_LIGHTING);
+            glColor3f(1.0, 1.0, 1.0);
+            glBegin(GL_TRIANGLES);
+            for (unsigned int i = 0; i < node.vertices.size(); ++i) {
+                if (node.hasNormals) glNormal3f(node.normals[i].x, node.normals[i].y, node.normals[i].z);
+                if (node.hasTexture) glTexCoord2f(node.uvs[i].x, node.uvs[i].y);
+                glVertex3f(node.vertices[i].x, node.vertices[i].y, node.vertices[i].z);
+            }
+            glEnd();
+        }
+    }
+    glPopMatrix();
 	glutSwapBuffers();
 	glutPostRedisplay();
 	showFPS();
@@ -204,33 +204,9 @@ void Render::init() {
 	glClearColor(.1f, .1f, .1f, 1.0);
 
 	axis = shapes::axis();
-	try {
-		model = new ObjReader("resources/mercedes/clkgtr.obj");
-	}
-	catch (const std::invalid_argument& e) {
-		std::cerr << e.what();
-	}
-
-	model->createModel();
-
-	if (!model->hasNormals) {
-		std::cout << "LIGHTS DISABLED" << std::endl;
-		glDisable(GL_LIGHTING);
-	}
-
-	std::string current_folder = model->path.substr(0, model->path.rfind('/') + 1);
-	for (int k = 0; k < model->materials.size(); ++k) {
-		ObjReader::node& node = model->materials[k];
-		const MtlReader::m_def mat = model->getMaterialInfo(node.material_name);
-		std::string texture_path = mat.map_Kd;
-		std::string complete_path = current_folder + texture_path;
-		if (texture_path.size() > 0) {
-			texture::precharge(current_folder, texture_path);
-			texture::loadTexture(texture_path);
-		}
-	}
+	
 	timer = Timer();
-	camera.newPosition(GLVector3f::GLVector3f(0, 0, 5));
+	camera.newPosition(GLVector3f::GLVector3f(0, 5, 5));
 	camera.lookAt(GLVector3f::GLVector3f(0, 0, 0));
 	timer.startDeltaChrono();
 }
