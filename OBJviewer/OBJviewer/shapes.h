@@ -30,19 +30,23 @@ namespace shapes {
 
     void drawGrid(int n, int m, float step, float color[3]) {
         static GLuint gridlist = -1;
+
+		glPushAttrib(GL_CURRENT_BIT | GL_LINE_BIT | GL_ENABLE_BIT);
         glDisable(GL_LIGHTING);
+		glDisable(GL_TEXTURE_2D);
         if (gridlist == -1) {
             gridlist = createGridList(n, m, step, color);
         }
         glCallList(gridlist);
-        glEnable(GL_LIGHTING);
+		glPopAttrib();
     }
 
     GLuint axis() {
         GLuint draw_list = glGenLists(1);
         glNewList(draw_list, GL_COMPILE);
-        glDisable(GL_LIGHTING);
-        glPushAttrib(GL_CURRENT_BIT | GL_LINE_BIT);
+        glPushAttrib(GL_CURRENT_BIT | GL_LINE_BIT | GL_ENABLE_BIT);
+		glDisable(GL_LIGHTING);
+		glDisable(GL_TEXTURE_2D);
         glLineWidth(4.0);
         glBegin(GL_LINES);
         glColor3f(1.0, 0.0, 0.0); // axis X: red
@@ -58,7 +62,6 @@ namespace shapes {
         glColor3f(0.5, 0.5, 0.5); // origin
         glutWireCube(0.1);
         glPopAttrib();
-        glEnable(GL_LIGHTING);
         glEndList();
         return draw_list;
     }

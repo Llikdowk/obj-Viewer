@@ -17,40 +17,24 @@
 #include "shapes.h"
 #include "lights.h"
 
+#define WIREFRAME_MODE 1
+#define TEXTURE_MODE   2
+#define LIGHTING_MODE  3
+
 namespace render {
 	int   main_window;
 	int vertexCount, polygonCount;
 
-	
-
 	// GLUI Live Variables
 
 	// Rendering Modes
-	int   wireframe = 0;
-	int   textures = 1;
-	int   lighting = 1;
+	int wireframe = 0;
+	int textures = 1;
+	int lighting = 0;
+	int gizmo = 0;
+	int grid = 1;
 
-	// Lighting
-	int   light2_enabled = 1;
-	float light2_intensity = 1.0;
-	float light2_X = 0.0;
-	float light2_Y = 0.0;
-	float light2_Z = 0.0;
-
-	GLfloat light2_ambient[] = { 0.1f, 0.1f, 0.3f, 1.0f };
-	GLfloat light2_diffuse[] = { .6f, .6f, 1.0f, 1.0f };
-	GLfloat light2_position[] = { .5f, .5f, 1.0f, 0.0f };
-
-
-	int   light3_enabled = 1;
-	float light3_intensity = .4;
-	float light3_X = 0.0;
-	float light3_Y = 0.0;
-	float light3_Z = 0.0;
-
-	GLfloat light3_ambient[] = { 0.1f, 0.1f, 0.3f, 1.0f };
-	GLfloat light3_diffuse[] = { .9f, .6f, 0.0f, 1.0f };
-	GLfloat light3_position[] = { -1.0f, -1.0f, 1.0f, 0.0f };
+	
 
     namespace {
         Timer timer;
@@ -61,8 +45,36 @@ namespace render {
         GLuint drawmodel_list;
     }
 
-	void loadModel(char* directory, char* name) {
+	void loadModel(const char* directory, const char* name) {
 
+	}
+
+	void changeRenderingMode(int mode) {
+		switch (mode) {
+		case WIREFRAME_MODE:
+			if (wireframe) {
+				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			} else {
+				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			}
+			break;
+		case TEXTURE_MODE:
+			if (textures) {
+				glEnable(GL_TEXTURE_2D);
+			} else {
+				glDisable(GL_TEXTURE_2D);
+			}
+			break;
+		case LIGHTING_MODE:
+			if (lighting) {
+				//glEnable(GL_LIGHTING);
+				lights::enableLighting();
+			} else {
+				//glDisable(GL_LIGHTING);
+				lights::disableLighting();
+			}
+			break;
+		}
 	}
 
     void orthographic() {
@@ -95,7 +107,6 @@ namespace render {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         
         //orthographic();
-        //glCallList(axis);
         //perspective(width, height);
 
         GLMatrixf::GLMatrixf m;
@@ -106,13 +117,27 @@ namespace render {
         camera.lookAt(GLVector3f::GLVector3f(0.0, 0.0, 0.0));
 
         camera.update();
+
+		// Light positioning
+		glLightfv(GL_LIGHT2, GL_POSITION, lights::light2_position);
+		glLightfv(GL_LIGHT3, GL_POSITION, lights::light3_position);
+
+
+
+
         float color[3] = { .3f, .3f, .3f };
 
         glPushMatrix();
         //glRotatef(90, 1, 0, 0);
 
-        shapes::drawGrid(16, 16, 1, color);
-        glScalef(.1, .1, .1);
+		if (grid) {
+			shapes::drawGrid(16, 16, 1, color);
+		}
+		if (gizmo) {
+			glCallList(axis);
+		}
+
+        //glScalef(.1, .1, .1);
         glMatrixMode(GL_MODELVIEW);
         std::string current_folder = model->path.substr(0, model->path.rfind('/') + 1);
         for (int k = 0; k < model->materials.size(); ++k) {   
@@ -132,14 +157,15 @@ namespace render {
             glMaterialfv(GL_FRONT, GL_AMBIENT, Ka);
             glMaterialfv(GL_FRONT, GL_DIFFUSE, Kd);
             //glMaterialfv(GL_FRONT, GL_SPECULAR, Ks);
-            glColorMaterial(GL_FRONT_AND_BACK, GL_DIFFUSE);
-            glEnable(GL_COLOR_MATERIAL);
+			glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+			glEnable(GL_COLOR_MATERIAL);
 
-            if (texture_path.size() > 0) {
-                texture::loadTexture(texture_path);                
+            /*if (texture_path.size() > 0) {
+                //texture::loadTexture(texture_path);                
                 //texture::loadTexture("/Maps/cty2x.jpg");
-            }
-            
+            }*/
+			//glDisable(GL_LIGHTING);
+			glColor3f(1.0, 1.0, 1.0);
             glBegin(GL_TRIANGLES);
             for (unsigned int i = 0; i < node.vertices.size(); ++i) {
                 if (node.hasNormals) glNormal3f(node.normals[i].x, node.normals[i].y, node.normals[i].z);
@@ -150,7 +176,6 @@ namespace render {
             
         }
         
-        glDisable(GL_TEXTURE_2D);
         glPopMatrix();
         
         glutSwapBuffers();
@@ -185,7 +210,7 @@ namespace render {
         
         axis = shapes::axis();
         try {
-            //model = new ObjReader("resources/mercedes/clkgtr.obj");
+            model = new ObjReader("resources/mercedes/clkgtr.obj");
             //model = new ObjReader("resources/delorean/DeLorean.obj");
             //model = new ObjReader("resources/house/3dmodels/house.obj");
             //model = new ObjReader("resources/organodron/organodron.obj");
@@ -194,7 +219,7 @@ namespace render {
             //model = new ObjReader("resources/cubus/cubus_faun_912_21.obj");
             //model = new ObjReader("resources/dog/Zombie_Dog.obj");
             //model = new ObjReader("resources/us_assault/us_assault.obj");
-            model = new ObjReader("resources/mustang/mustang.obj");
+            // = new ObjReader("resources/mustang/mustang.obj");
         }
         catch (const std::invalid_argument& e) {
             std::cerr << e.what();
@@ -215,10 +240,11 @@ namespace render {
             std::string complete_path = current_folder + texture_path;
             if (texture_path.size() > 0) {
                 texture::precharge(current_folder, texture_path);
+				texture::loadTexture(texture_path);
             }
         }
         timer = Timer();
-        camera.newPosition(GLVector3f::GLVector3f(5, 100, 350));
+        camera.newPosition(GLVector3f::GLVector3f(5, 2, 5));
         camera.lookAt(GLVector3f::GLVector3f(0, 0, 0));
         timer.startDeltaChrono();
     }

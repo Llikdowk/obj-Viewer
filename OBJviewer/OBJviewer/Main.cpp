@@ -14,15 +14,11 @@ GLUI_StaticText  *vertexText, *polygonText;
 // CALLBACK IDS
 #define LIGHT2_ENABLED_ID    200
 #define LIGHT2_INTENSITY_ID  250
-#define LIGHT2_X_ID	         270
-#define LIGHT2_Y_ID	         271
-#define LIGHT2_Z_ID	         272
+#define LIGHT2_POS_ID	     270
 
 #define LIGHT3_INTENSITY_ID  260
 #define LIGHT3_ENABLED_ID    201
-#define LIGHT3_X_ID	         280
-#define LIGHT3_Y_ID	         281
-#define LIGHT3_Z_ID	         282
+#define LIGHT3_POS_ID	     280
 
 #define OPENFILE_ID          999
 
@@ -36,10 +32,11 @@ void control_cb(int control) {
 		char path[MAX_PATH];
 		size_t x;
 		wcstombs_s(&x, path, MAX_PATH, s.c_str(), MAX_PATH);
-		std::cout << path << "\\" << fileBrowser->get_file() << std::endl;
+		//::cout << path << "\\" << fileBrowser->get_file() << std::endl;
+		render::loadModel(path, fileBrowser->get_file());
 	}
 	else if (control == LIGHT2_ENABLED_ID) {
-		if (render::light2_enabled) {
+		if (lights::light2_enabled) {
 			glEnable(GL_LIGHT2);
 			light2_Intensity->enable();
 			light2_X->enable();
@@ -61,15 +58,15 @@ void control_cb(int control) {
 		}
 	}
 	else if (control == LIGHT3_ENABLED_ID) {
-		if (render::light3_enabled) {
+		if (lights::light3_enabled) {
 			glEnable(GL_LIGHT3);
 			light3_Intensity->enable();
 			light3_X->enable();
 			light3_Y->enable();
 			light3_Z->enable();
-			light2_R->enable();
-			light2_G->enable();
-			light2_B->enable();
+			light3_R->enable();
+			light3_G->enable();
+			light3_B->enable();
 		}
 		else {
 			glDisable(GL_LIGHT3);
@@ -77,32 +74,38 @@ void control_cb(int control) {
 			light3_X->disable();
 			light3_Y->disable();
 			light3_Z->disable();
-			light2_R->disable();
-			light2_G->disable();
-			light2_B->disable();
+			light3_R->disable();
+			light3_G->disable();
+			light3_B->disable();
 		}
 	}
 	else if (control == LIGHT2_INTENSITY_ID) {
 		float v[] = {
-			render::light2_diffuse[0],  render::light2_diffuse[1],
-			render::light2_diffuse[2],  render::light2_diffuse[3] };
+			lights::light2_diffuse[0],  lights::light2_diffuse[1],
+			lights::light2_diffuse[2],  lights::light2_diffuse[3] };
 
-		v[0] *= render::light2_intensity;
-		v[1] *= render::light2_intensity;
-		v[2] *= render::light2_intensity;
+		v[0] *= lights::light2_intensity;
+		v[1] *= lights::light2_intensity;
+		v[2] *= lights::light2_intensity;
 
 		glLightfv(GL_LIGHT2, GL_DIFFUSE, v);
 	}
 	else if (control == LIGHT3_INTENSITY_ID) {
 		float v[] = {
-			render::light3_diffuse[0],  render::light3_diffuse[1],
-			render::light3_diffuse[2],  render::light3_diffuse[3] };
+			lights::light3_diffuse[0],  lights::light3_diffuse[1],
+			lights::light3_diffuse[2],  lights::light3_diffuse[3] };
 
-		v[0] *= render::light3_intensity;
-		v[1] *= render::light3_intensity;
-		v[2] *= render::light3_intensity;
+		v[0] *= lights::light3_intensity;
+		v[1] *= lights::light3_intensity;
+		v[2] *= lights::light3_intensity;
 
 		glLightfv(GL_LIGHT3, GL_DIFFUSE, v);
+	}
+	else if (control == LIGHT2_POS_ID) {
+		glLightfv(GL_LIGHT2, GL_POSITION, lights::light2_position);
+	}
+	else if (control == LIGHT3_POS_ID) {
+		glLightfv(GL_LIGHT3, GL_POSITION, lights::light3_position);
 	}
 }
 
@@ -127,74 +130,73 @@ void buildGUI() {
 
 		// File Browser
 		{
-			GLUI_Panel *fileBrowserPanel;
-			fileBrowserPanel = rightSubwindow->add_panel("File Browser", GLUI_PANEL_EMBOSSED);
-			fileBrowser = new GLUI_FileBrowser(fileBrowserPanel, "", GLUI_PANEL_NONE, OPENFILE_ID, control_cb);
-			fileBrowser->set_allow_change_dir(true);
-			rightSubwindow->add_button_to_panel(fileBrowserPanel, "Open File", OPENFILE_ID, control_cb);
+			//fileBrowser = new GLUI_FileBrowser(rightSubwindow, "File Browser", GLUI_PANEL_EMBOSSED, OPENFILE_ID, control_cb);
+			//fileBrowser->set_allow_change_dir(true);
 		}
 
 		// Rendering Options
 		{
 			GLUI_Panel *obj_panel = new GLUI_Panel(rightSubwindow, "Rendering");
 
-			GLUI_Checkbox *cb = new GLUI_Checkbox(obj_panel, "Wireframe                         ", &render::wireframe, 1, control_cb);
-			new GLUI_Checkbox(obj_panel, "Textures", &render::textures, 1, control_cb);
+			new GLUI_Checkbox(obj_panel, "Wireframe                         ", &render::wireframe, WIREFRAME_MODE, render::changeRenderingMode);
+			new GLUI_Checkbox(obj_panel, "Textures", &render::textures, TEXTURE_MODE, render::changeRenderingMode);
+			new GLUI_Checkbox(obj_panel, "Gizmo", &render::gizmo, -1, control_cb);
+			new GLUI_Checkbox(obj_panel, "Grid", &render::grid, -1, control_cb);
 		}
 
 		// Lights
 		{
 			GLUI_Panel *roll_lights = new GLUI_Panel(rightSubwindow, "Lights");
-			new GLUI_Checkbox(roll_lights, "Lighting", &render::lighting, 1, control_cb);
+			new GLUI_Checkbox(roll_lights, "Lighting", &render::lighting, LIGHTING_MODE, render::changeRenderingMode);
 
 			// Light0
 			GLUI_Rollout *light0 = new GLUI_Rollout(roll_lights, "Light 1");
-			new GLUI_Checkbox(light0, "Enabled", &render::light2_enabled, LIGHT2_ENABLED_ID, control_cb);
+			new GLUI_Checkbox(light0, "Enabled", &lights::light2_enabled, LIGHT2_ENABLED_ID, control_cb);
 
 			// Position
 			GLUI_Panel *lightPos0 = new GLUI_Panel(light0, "Position");
-			light2_X = new GLUI_Spinner(lightPos0, "X:", &render::light2_X, LIGHT2_X_ID, control_cb);
+			light2_X = new GLUI_Spinner(lightPos0, "X:", &lights::light2_position[0], LIGHT2_POS_ID, control_cb);
 			light2_X->set_float_limits(-1000.0, 1000.0);
-			light2_Y = new GLUI_Spinner(lightPos0, "Y:", &render::light2_Y, LIGHT2_Y_ID, control_cb);
+			light2_Y = new GLUI_Spinner(lightPos0, "Y:", &lights::light2_position[1], LIGHT2_POS_ID, control_cb);
 			light2_Y->set_float_limits(-1000.0, 1000.0);
-			light2_Z = new GLUI_Spinner(lightPos0, "Z:", &render::light2_Z, LIGHT2_Z_ID, control_cb);
+			light2_Z = new GLUI_Spinner(lightPos0, "Z:", &lights::light2_position[2], LIGHT2_POS_ID, control_cb);
 			light2_Z->set_float_limits(-1000.0, 1000.0);
 
 			// Color
-			light2_Intensity = new GLUI_Spinner(light0, "Intensity:", &render::light2_intensity, LIGHT2_INTENSITY_ID, control_cb);
+			light2_Intensity = new GLUI_Spinner(light0, "Intensity:", &lights::light2_intensity, LIGHT2_INTENSITY_ID, control_cb);
 			light2_Intensity->set_float_limits(0.0, 1.0);
 			GLUI_Panel *lightColor0 = new GLUI_Panel(light0, "Color (R, G, B)");
-			light2_R = new GLUI_Scrollbar(lightColor0, "Red", GLUI_SCROLL_HORIZONTAL, &render::light2_diffuse[0], LIGHT2_INTENSITY_ID, control_cb);
+			light2_R = new GLUI_Scrollbar(lightColor0, "Red", GLUI_SCROLL_HORIZONTAL, &lights::light2_diffuse[0], LIGHT2_INTENSITY_ID, control_cb);
 			light2_R->set_float_limits(0, 1);
-			light2_G = new GLUI_Scrollbar(lightColor0, "Green", GLUI_SCROLL_HORIZONTAL, &render::light2_diffuse[1], LIGHT2_INTENSITY_ID, control_cb);
+			light2_G = new GLUI_Scrollbar(lightColor0, "Green", GLUI_SCROLL_HORIZONTAL, &lights::light2_diffuse[1], LIGHT2_INTENSITY_ID, control_cb);
 			light2_G->set_float_limits(0, 1);
-			light2_B = new GLUI_Scrollbar(lightColor0, "Blue", GLUI_SCROLL_HORIZONTAL, &render::light2_diffuse[2], LIGHT2_INTENSITY_ID, control_cb);
+			light2_B = new GLUI_Scrollbar(lightColor0, "Blue", GLUI_SCROLL_HORIZONTAL, &lights::light2_diffuse[2], LIGHT2_INTENSITY_ID, control_cb);
 			light2_B->set_float_limits(0, 1);
 
 
 			// Light 1
 			GLUI_Rollout *light1 = new GLUI_Rollout(roll_lights, "Light 2");
-			new GLUI_Checkbox(light1, "Enabled", &render::light3_enabled, LIGHT3_ENABLED_ID, control_cb);
+			new GLUI_Checkbox(light1, "Enabled", &lights::light3_enabled, LIGHT3_ENABLED_ID, control_cb);
 
 			// Position
 			GLUI_Panel *lightPos1 = new GLUI_Panel(light1, "Position");
-			light3_X = new GLUI_Spinner(lightPos1, "X:", &render::light3_X, LIGHT3_X_ID, control_cb);
+			light3_X = new GLUI_Spinner(lightPos1, "X:", &lights::light3_position[0], LIGHT3_POS_ID, control_cb);
 			light3_X->set_float_limits(-1000.0, 1000.0);
-			light3_Y = new GLUI_Spinner(lightPos1, "Y:", &render::light3_Y, LIGHT3_Y_ID, control_cb);
+			light3_Y = new GLUI_Spinner(lightPos1, "Y:", &lights::light3_position[1], LIGHT3_POS_ID, control_cb);
 			light3_Y->set_float_limits(-1000.0, 1000.0);
-			light3_Z = new GLUI_Spinner(lightPos1, "Z:", &render::light3_Z, LIGHT3_Z_ID, control_cb);
+			light3_Z = new GLUI_Spinner(lightPos1, "Z:", &lights::light3_position[2], LIGHT3_POS_ID, control_cb);
 			light3_Z->set_float_limits(-1000.0, 1000.0);
 
 			// Color
-			light3_Intensity = new GLUI_Spinner(light1, "Intensity:", &render::light3_intensity, LIGHT3_INTENSITY_ID, control_cb);
+			light3_Intensity = new GLUI_Spinner(light1, "Intensity:", &lights::light3_intensity, LIGHT3_INTENSITY_ID, control_cb);
 			light3_Intensity->set_float_limits(0.0, 1.0);
 			GLUI_Panel *lightColor1 = new GLUI_Panel(light1, "Color (R, G, B)");
-			light2_R = new GLUI_Scrollbar(lightColor1, "Red", GLUI_SCROLL_HORIZONTAL, &render::light3_diffuse[0], LIGHT3_INTENSITY_ID, control_cb);
-			light2_R->set_float_limits(0, 1);
-			light2_G = new GLUI_Scrollbar(lightColor1, "Green", GLUI_SCROLL_HORIZONTAL, &render::light3_diffuse[1], LIGHT3_INTENSITY_ID, control_cb);
-			light2_G->set_float_limits(0, 1);
-			light2_B = new GLUI_Scrollbar(lightColor1, "Blue", GLUI_SCROLL_HORIZONTAL, &render::light3_diffuse[2], LIGHT3_INTENSITY_ID, control_cb);
-			light2_B->set_float_limits(0, 1);
+			light3_R = new GLUI_Scrollbar(lightColor1, "Red", GLUI_SCROLL_HORIZONTAL, &lights::light3_diffuse[0], LIGHT3_INTENSITY_ID, control_cb);
+			light3_R->set_float_limits(0, 1);
+			light3_G = new GLUI_Scrollbar(lightColor1, "Green", GLUI_SCROLL_HORIZONTAL, &lights::light3_diffuse[1], LIGHT3_INTENSITY_ID, control_cb);
+			light3_G->set_float_limits(0, 1);
+			light3_B = new GLUI_Scrollbar(lightColor1, "Blue", GLUI_SCROLL_HORIZONTAL, &lights::light3_diffuse[2], LIGHT3_INTENSITY_ID, control_cb);
+			light3_B->set_float_limits(0, 1);
 		}
 	}
 
