@@ -1,5 +1,6 @@
 #include "render.h"
 #include "InputHandler.h"
+#include <sstream>
 
 Render& render = Render::getInstance();
 
@@ -27,6 +28,12 @@ GLUI_Spinner     *cameraX, *cameraY, *cameraZ;
 void control_cb(int control) {
 	if (control == OPENFILE_ID) {
 		render.loadModel(fileBrowser->get_file());
+		std::stringstream ss;
+		ss << "Vertex: " << render.vertexCount;
+		vertexText->set_text(ss.str().c_str());
+		std::stringstream ss2;
+		ss2 << "Polygons: " << render.polygonCount;
+		polygonText->set_text(ss2.str().c_str());
 	}
 	else if (control == LIGHT2_ENABLED_ID) {
 		if (lights::light2_enabled) {

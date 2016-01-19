@@ -13,6 +13,8 @@ void Render::loadModel(const char* name) {
 	}
 
 	model->createModel();
+	vertexCount = model->v_index;
+	polygonCount = model->f_index;
 
 	if (!model->hasNormals) {
 		std::cout << "LIGHTS DISABLED" << std::endl;
