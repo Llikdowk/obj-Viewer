@@ -1,5 +1,5 @@
 # OBJViewer
-Academic project done at the 4th year of University. Parses an *\*.obj* file and renders it by using OpenGL1.1
+Academic project done at the 4th year of University. Parses an *.obj file and renders it by using fixed-function OpenGL.
 &nbsp;
 
 &nbsp;
